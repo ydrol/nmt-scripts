@@ -1,0 +1,4 @@
+choice:one to five|1|2|3|4|5
+free:free text
+choice2:6-9|six|seven|eight|nine
+free2:more free text|singledef

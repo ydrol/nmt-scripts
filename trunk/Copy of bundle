@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# Bundle up zip file. (also a tgz and a tar as HDX platforn only has tar)
+# appinfo.json is include for compatibility with CSI installer.
+set -e
+if [ $# -eq 0 ] ; then
+    echo "usage: $0 appname [filelist]"
+    exit 1
+fi
+appname=$1 ; shift
+VFILE=VERSION
+rm -f $appname.zip VERSION VERSION-BETA
+
+#Get version from first file
+grep ^VERSION $1 | head -1 | sed 's/.*=//' > VERSION
+
+if grep -i beta $VFILE ; then
+    mv $VFILE ${VFILE}-BETA
+    VFILE=${VFILE}-BETA
+    sed "s/@@VERSION@@/$VERSION/" csi.$appname-BETA/appinfo.json > appinfo.json
+else
+    sed "s/@@VERSION@@/$VERSION/" csi.$appname/appinfo.json > appinfo.json
+fi
+
+VERSION=`cat $VFILE`
+
+echo === $VERSION ===
+grep ^VERSION= "$@" */*.sh */*.BAT | sed 's/VERSION=//;s/:/	:	/'
+echo
+echo === LATEST COMMON FILES ===
+grep ^VERSION= ../common/*[a-z]
+echo
+
+echo ; echo "Press Enter to publish $appname-$VERSION - CTRL C to abort" ;read x
+
+
+zip -r $appname-$VERSION.zip  appinfo.json "$@" 
+tar cvf $appname-$VERSION.tar appinfo.json "$@"
+gzip -c $appname-$VERSION.tar > $appname-$VERSION.tgz 
+
+echo ; echo "Press Enter to upload version [`cat $VFILE`] $appname-$VERSION - CTRL C to abort" ;read x
+
+cp -a website website-tmp
+( cd website-tmp ; sed -i "s/@VERSION@/$VERSION/g" *.html )
+
+ftp -n <<HERE
+open www.prodynamic.co.uk
+user ydrol@prodynamic.co.uk
+
+cd nmt/$appname
+pwd
+bin
+prompt
+mput $VFILE $appname*.zip  $appname*.tar $appname*.tgz
+lcd website-tmp
+mput *.html
+ls -lart
+quit
+HERE
+
+rm -fr website-tmp
+
+mkdir -p backup
+mv -f $appname-$VERSION.zip backup
+rm -f $VFILE
