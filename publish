@@ -1,0 +1,214 @@
+#!/bin/sh
+#
+# Bundle up zip file. (also a tgz and a tar as HDX platforn only has tar)
+# appinfo.json is include for compatibility with CSI installer.
+set -e
+#set -x
+if [ $# -eq 0 ] ; then
+    echo "usage: $0 appname [filelist]"
+    exit 1
+fi
+
+ftp_files() {
+    ftp -n <<HERE
+    open www.prodynamic.co.uk
+    user $ftp_user $ftp_password
+
+    cd nmt/$appname
+    pwd
+    bin
+    hash
+    prompt
+    put $version_filename
+    put $app_id.zip
+    put $app_id.tar
+    put $app_id.tgz
+    put $app_id.zip $dest.zip
+    put $app_id.tgz $dest.tgz
+    put $app_id.tar $dest.tar
+
+    lcd website-tmp
+    mput *.html
+    ls -lart
+    quit
+HERE
+}
+
+ftp_csi_files() {
+    ftp -n <<HERE
+    open www.prodynamic.co.uk
+    user $ftp_user $ftp_password
+
+    cd /nmt/$appname
+    cd /nmt/csirepository
+    pwd
+    bin
+    hash
+    prompt
+    put csi_$app_id.zip 
+
+    lcd ../csi
+
+    put RepositoryInfo.xml
+    ls -lart
+    quit
+HERE
+}
+
+# $1 = name , rest = files
+create_archives() {
+    name="$1" ; shift
+    zip -r $name.zip  "$@" 
+    tar cf $name.tar "$@"
+    gzip -c $name.tar > $name.tgz 
+    zip csi_$name.zip $name.tar
+}
+
+# $1 = appname
+# $2 = Version
+# $3 = Timestamp
+# $4 = note
+update_csi_xml_repository() {
+    base=../csi/RepositoryInfo.xml
+    cp "$base" "$base.old"
+    awk '
+
+/<Version>/ {
+    in_version = 0;
+    if ( in_name ) { 
+        v="'"$2"'";
+        if (!index(v,"BETA") == !index($0,"BETA")) {
+            print "     <Version>"v"</Version>" ;
+            in_version = 1;
+            next;
+        }
+    }
+}
+
+/<DescriptionXX>/ && in_version {
+    print $0;
+    note="'"$4"'";
+    if (note != "" ) {
+        print note;
+    }
+    next;
+}
+
+/<DownloadURL>/ && in_version {
+    print "     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_'"$1-$2"'.zip</DownloadURL>";
+    next;
+}
+/<InstallScript>/ && in_version {
+    print "     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;'"$1-$2"'.tar</InstallScript>";
+    next;
+}
+
+/<Name>/ {
+    in_name=0;
+    if (tolower($0) ~ "<name>'"$1"'</name>") {
+        in_name=1;
+    }
+}
+
+
+1 { print }
+' "$base.old" > "$base"
+    echo =================
+    cat $base
+    echo =================
+
+    cp "$base" "$base.$3"
+
+}
+
+checkpoint() {
+    echo ; echo "$@ - Y/n" ; read x
+    [ "$x" = "Y" ]
+}
+
+# $1 = archive name
+backup() {
+    mkdir -p backup
+    mv -f $1.zip backup
+    rm -f $1.tar $1.tgz
+    #rm -f csi_$1.zip
+}
+##############################################################################
+
+appname=$1 ; shift
+
+timestamp=`date '+%Y%m%d%H%M'`
+
+rm -f $appname.zip $appname.version $appname.beta.version
+
+#Get version from first file
+version_id=`grep ^VERSION $1 | head -1 | sed 's/.*=//'`
+
+version_filename=$appname.version
+
+echo $version_id > $version_filename
+
+suffix=
+echo "version_id=$version_id" 
+
+app_id=$appname-$version_id
+
+case "$version_id" in
+    *BETA)
+        suffix="-BETA"
+        oldname=$version_filename
+        version_filename=$appname.beta.version
+        mv $oldname $version_filename
+    ;;
+esac
+
+sed "s/@@VERSION@@/$version_id/" csi.$appname$suffix/appinfo.json > appinfo.json
+
+dest=$appname$suffix
+
+echo === $version_id ===
+
+grep ^VERSION= "$@" */*.sh */*.BAT | sed 's/VERSION=//;s/:/	:	/'
+echo
+echo === LATEST COMMON FILES ===
+grep ^VERSION= ../common/*[a-z]
+echo
+
+if checkpoint "Publish `cat $version_filename` $app_id" ; then
+
+    create_archives "$app_id" appinfo.json $version_filename "$@"
+
+
+    if checkpoint "Continue [`cat $version_filename`] $app_id" ; then
+
+        cp -a website website-tmp
+        ( cd website-tmp ; sed -i "s/@VERSION@/$version_id/g" *.html )
+
+        ftp_user="ydrol@prodynamic.co.uk"
+        #echo "ftp user" ; read ftp_user
+        echo "ftp password" ; read ftp_password
+
+        csi=0
+        if checkpoint "Upload to CSI" ; then
+            csi=1
+            echo "Enter Additional release note" ; read note
+        fi
+
+        ftp_files
+
+        rm -fr website-tmp
+
+        if [ "$csi" = 1 ] ; then
+
+
+            update_csi_xml_repository "$appname" "$version_id" "$timestamp" "$note"
+
+            ftp_csi_files
+
+        fi
+
+        backup "$app_id"
+
+        rm -f $version_filename
+    fi
+fi 
