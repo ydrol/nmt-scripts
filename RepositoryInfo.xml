@@ -3,37 +3,15 @@
 <Repository>
     <DistributedRepositories/>
     <Applications>
+    <!-- 
+
+        OVERSIGHT
+
+    -->
         <Application>
             <Name>Oversight</Name>
-            <Version>20090112-1</Version>
-            <!-- <DownloadURL>http://repository.nmtinstaller.com/Applications/Oversight.zip</DownloadURL> -->
-            <DownloadURL>http://prodynamic.co.uk/nmt/csirepository/Oversight.zip</DownloadURL>
-            <Author>Lordy</Author>
-            <Maintainer>Lordy</Maintainer>
-            <Description>Must have.
-NOTE:test5
-              A minimalist auto-updating JukeBox for 'transient' collections.
-              Provides an PVR type view when combined with nzbget and an automatic nzb downloader (tvnzb or torrentwatch)  
-              It also includes comprehensive post processing scripts for nzbget.
-              This version is stable , however the beta version contains many fixes and enhancements and is the 
-              recommended version.
-             </Description>
-            <Homepage>http://prodynamic.co.uk/nmt/oversight/oversight.html</Homepage>
-            <InstallScript>installer.cgi</InstallScript>
-            <WebInterfaceURL>http://[NMT_IP]:8883/oversight.cgi</WebInterfaceURL>
-            <GayaInterfaceURL>http://localhost:8883/oversight.cgi</GayaInterfaceURL>
-            <Screenshots>
-                <URL>http://prodynamic.co.uk/oversight/os-tv1.png</URL>
-                <URL>http://prodynamic.co.uk/oversight/os-both.png</URL>
-                <URL>http://prodynamic.co.uk/oversight/os-film1.png</URL>
-            </Screenshots>
-            <UsageInstructions/>
-            <Forum>http://www.networkedmediatank.com/showthread.php?tid=17637</Forum>
-        </Application>
-        <Application>
-            <Name>Oversight</Name>
-     <Version>20090707-2BETA</Version>
-     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_oversight-20090707-2BETA.zip</DownloadURL>
+            <Version>20090707-2BETA</Version>
+            <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_oversight-20090707-2BETA.zip</DownloadURL>
             <Author>Lordy</Author>
             <Maintainer>Lordy</Maintainer>
             <Description>Hands free NMT jukebox. See stable release for full description.
@@ -43,7 +21,7 @@ Known Issues: oversight: The index may dissapear during delete operation. A resc
             </Description>
 
             <Homepage>http://prodynamic.co.uk/nmt/oversight/oversight.html</Homepage>
-     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;oversight-20090707-2BETA.tar</InstallScript>
+            <InstallScript>Apps/AppInit/appinit.cgi?install&amp;oversight-20090707-2BETA.tar</InstallScript>
             <WebInterfaceURL>http://[NMT_IP]:8883/oversight/oversight.cgi</WebInterfaceURL>
             <GayaInterfaceURL>http://localhost:8883/oversight/oversight.cgi</GayaInterfaceURL>
             <Screenshots>
@@ -53,11 +31,9 @@ Known Issues: oversight: The index may dissapear during delete operation. A resc
                 <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-tv.png</URL>
                 <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-setup.png</URL>
             </Screenshots>
-            <UsageInstructions>
-                If you used oversight V1, please note the link is changed to http://[NMT_IP]:8883/oversight/oversight.cgi
-            </UsageInstructions>
+            <UsageInstructions> If you used oversight V1, please note the link is changed to http://[NMT_IP]:8883/oversight/oversight.cgi </UsageInstructions>
             <Forum>http://www.networkedmediatank.com/showthread.php?tid=17637</Forum>
-<Changelog>
+            <Changelog>
    20090707-2BETA : Fix typo in catalog.sh
    Jun 5 / 20090605-2BETA:
    catalog  : Minor bug fix to tvscanning when mapping imdbid to tvdbid
@@ -95,43 +71,52 @@ Mar03: unpak    : cross platform fix to awk regex
 May01: catalog  : Split file detection fixed. 
 May01: unpak    : Cross platform unpak fixes. Another path bug fixed!
 Apr30: catalog  : Better matching C.S.I to CSI ,aaf-sp.s13e07 unpak:Removed "which" command
-</Changelog>
+            </Changelog>
         </Application>
+        <!-- 
 
+            Influz
+
+        -->
         <Application>
             <Name>TvNZB</Name>
-     <Version>20090614-2</Version>
-     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_tvnzb-20090614-2.zip</DownloadURL>
+            <Version>20090614-2</Version>
+            <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_tvnzb-20090614-2.zip</DownloadURL>
             <Author>Lordy</Author>
             <Maintainer>Lordy</Maintainer>
-            <Description>Automatically download TV oriented NZB files from RSS and feed to nzbget. Also provides NZBget scheduling.</Description>
+            <Description>
+                Automatically download TV oriented NZB files from RSS and feed to nzbget. Also provides NZBget scheduling.</Description>
             <Homepage>http://prodynamic.co.uk/nmt/tvnzb/tvnzb.html</Homepage>
-     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;tvnzb-20090614-2.tar</InstallScript>
+            <InstallScript>Apps/AppInit/appinit.cgi?install&amp;tvnzb-20090614-2.tar</InstallScript>
             <WebInterfaceURL>http://[NMT_IP]:8883/tvnzb.cgi</WebInterfaceURL>
             <GayaInterfaceURL>http://localhost:8883/tvnzb.cgi</GayaInterfaceURL>
             <Screenshots/>
             <UsageInstructions/>
             <Forum>http://www.networkedmediatank.com/showthread.php?tid=11133</Forum>
-<Changelog>
-    20090614-2: Oops removed some debug lines that broke downloads. 
-    20090614-1: Fixed matching agaist titles with html escapes
-    20090613-1: Added configurable match limit. Re-Added Skip/Fast Forward
-    20090611-1: Bug fix - newzleech feed fixed again.
-    20090610-3: Bug fix - feed 0 caused segfault (but left code that stopped newzleech working)
-    20090610-1: Accept multiple RSS feeds. More robust nzbget peak scheduling
-    20090528-1: Work with nzbget from firmware or from CSI.
-</Changelog>
+            <Changelog>
+                20090614-2: Oops removed some debug lines that broke downloads. 
+                20090614-1: Fixed matching agaist titles with html escapes
+                20090613-1: Added configurable match limit. Re-Added Skip/Fast Forward
+                20090611-1: Bug fix - newzleech feed fixed again.
+                20090610-3: Bug fix - feed 0 caused segfault (but left code that stopped newzleech working)
+                20090610-1: Accept multiple RSS feeds. More robust nzbget peak scheduling
+                20090528-1: Work with nzbget from firmware or from CSI.
+            </Changelog>
         </Application>
+        <!-- 
 
+            ZEBEDEE
+
+        -->
         <Application>
             <Name>Zebedee</Name>
-     <Version>20090610-1</Version>
-     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_zebedee-20090610-1.zip</DownloadURL>
+            <Version>20090610-1</Version>
+            <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_zebedee-20090610-1.zip</DownloadURL>
             <Author>Lordy</Author>
             <Maintainer>Lordy</Maintainer>
             <Description>Another GUI for nzbget that works in the browser or on the TV.</Description>
             <Homepage>http://prodynamic.co.uk/nmt/zebedee/index.html</Homepage>
-     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;zebedee-20090610-1.tar</InstallScript>
+            <InstallScript>Apps/AppInit/appinit.cgi?install&amp;zebedee-20090610-1.tar</InstallScript>
             <WebInterfaceURL>http://[NMT_IP]:8883/zebedee.cgi</WebInterfaceURL>
             <GayaInterfaceURL>http://localhost:8883/zebedee.cgi</GayaInterfaceURL>
             <WebInterfaceURL/>
@@ -139,11 +124,11 @@ Apr30: catalog  : Better matching C.S.I to CSI ,aaf-sp.s13e07 unpak:Removed "whi
             <Screenshots/>
             <UsageInstructions/>
             <Forum>http://www.networkedmediatank.com/forumdisplay.php?fid=64</Forum>
-<Changelog>
-    20090610-1: Allow NZB upload via URL. Removed test pages as it adds extra maintenance effort and also seemed to confuse some users.
-    20090528-1: Work with nzbget from firmware or from CSI.
-    TODO : Rewrite for better visibilty of completed, failed jobs.
-</Changelog>
+            <Changelog>
+                20090610-1: Allow NZB upload via URL. Removed test pages as it adds extra maintenance effort and also seemed to confuse some users.
+                20090528-1: Work with nzbget from firmware or from CSI.
+                TODO : Rewrite for better visibilty of completed, failed jobs.
+            </Changelog>
         </Application>
     </Applications>
     <Themes/>
