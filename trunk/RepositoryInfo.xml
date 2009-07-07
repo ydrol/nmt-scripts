@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
 <Repository>
     <DistributedRepositories/>
@@ -32,8 +32,8 @@ NOTE:test5
         </Application>
         <Application>
             <Name>Oversight</Name>
-     <Version>20090707-1BETA</Version>
-     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_oversight-20090707-1BETA.zip</DownloadURL>
+     <Version>20090707-2BETA</Version>
+     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_oversight-20090707-2BETA.zip</DownloadURL>
             <Author>Lordy</Author>
             <Maintainer>Lordy</Maintainer>
             <Description>Hands free NMT jukebox. See stable release for full description.
@@ -43,7 +43,7 @@ Known Issues: oversight: The index may dissapear during delete operation. A resc
             </Description>
 
             <Homepage>http://prodynamic.co.uk/nmt/oversight/oversight.html</Homepage>
-     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;oversight-20090707-1BETA.tar</InstallScript>
+     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;oversight-20090707-2BETA.tar</InstallScript>
             <WebInterfaceURL>http://[NMT_IP]:8883/oversight/oversight.cgi</WebInterfaceURL>
             <GayaInterfaceURL>http://localhost:8883/oversight/oversight.cgi</GayaInterfaceURL>
             <Screenshots>
@@ -58,6 +58,7 @@ Known Issues: oversight: The index may dissapear during delete operation. A resc
             </UsageInstructions>
             <Forum>http://www.networkedmediatank.com/showthread.php?tid=17637</Forum>
 <Changelog>
+   20090707-2BETA : Fix typo in catalog.sh
    Jun 5 / 20090605-2BETA:
    catalog  : Minor bug fix to tvscanning when mapping imdbid to tvdbid
 
@@ -86,14 +87,14 @@ Coming Soon :     Transmission integration / USB NAS support.
 Mar14: unpak  : Fix to delete sample files.
 Mar14: catalog  : Fix for quoted files. Should solve some scanning issues people are having.
 Mar14: catalog  : Fix multipart detection. CD01 
-Mar14: catalog  : Detect when Epguides links to pilot episode on IMDB rather than series e.g &quot;Ugly Betty&quot;. 
+Mar14: catalog  : Detect when Epguides links to pilot episode on IMDB rather than series e.g "Ugly Betty". 
 Mar07: catalog  : Fix for short imdb ids (5 digit eg Simpsons)
 Mar05: oversight: Added Poster View
 Mar03: oversight: Update tool / unrolled db read loop
 Mar03: unpak    : cross platform fix to awk regex
 May01: catalog  : Split file detection fixed. 
 May01: unpak    : Cross platform unpak fixes. Another path bug fixed!
-Apr30: catalog  : Better matching C.S.I to CSI ,aaf-sp.s13e07 unpak:Removed &quot;which&quot; command
+Apr30: catalog  : Better matching C.S.I to CSI ,aaf-sp.s13e07 unpak:Removed "which" command
 </Changelog>
         </Application>
 
