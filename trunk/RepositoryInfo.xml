@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<Repository>
+    <DistributedRepositories/>
+    <Applications>
+        <Application>
+            <Name>Oversight</Name>
+            <Version>20090112-1</Version>
+            <!-- <DownloadURL>http://repository.nmtinstaller.com/Applications/Oversight.zip</DownloadURL> -->
+            <DownloadURL>http://prodynamic.co.uk/nmt/csirepository/Oversight.zip</DownloadURL>
+            <Author>Lordy</Author>
+            <Maintainer>Lordy</Maintainer>
+            <Description>Must have.
+NOTE:test5
+              A minimalist auto-updating JukeBox for 'transient' collections.
+              Provides an PVR type view when combined with nzbget and an automatic nzb downloader (tvnzb or torrentwatch)  
+              It also includes comprehensive post processing scripts for nzbget.
+              This version is stable , however the beta version contains many fixes and enhancements and is the 
+              recommended version.
+             </Description>
+            <Homepage>http://prodynamic.co.uk/nmt/oversight/oversight.html</Homepage>
+            <InstallScript>installer.cgi</InstallScript>
+            <WebInterfaceURL>http://[NMT_IP]:8883/oversight.cgi</WebInterfaceURL>
+            <GayaInterfaceURL>http://localhost:8883/oversight.cgi</GayaInterfaceURL>
+            <Screenshots>
+                <URL>http://prodynamic.co.uk/oversight/os-tv1.png</URL>
+                <URL>http://prodynamic.co.uk/oversight/os-both.png</URL>
+                <URL>http://prodynamic.co.uk/oversight/os-film1.png</URL>
+            </Screenshots>
+            <UsageInstructions/>
+            <Forum>http://www.networkedmediatank.com/showthread.php?tid=17637</Forum>
+        </Application>
+        <Application>
+            <Name>Oversight</Name>
+     <Version>20090707-1BETA</Version>
+     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_oversight-20090707-1BETA.zip</DownloadURL>
+            <Author>Lordy</Author>
+            <Maintainer>Lordy</Maintainer>
+            <Description>Hands free NMT jukebox. See stable release for full description.
+If upgrading you should create a new oversight.cfg from oversight.cfg.example. There are new settings for poster view.
+If the upgrade doesnt work please use the mini-installer to restore http://prodynamic.co.uk/nmt/installer/index.html
+Known Issues: oversight: The index may dissapear during delete operation. A rescan will bring it back.
+            </Description>
+
+            <Homepage>http://prodynamic.co.uk/nmt/oversight/oversight.html</Homepage>
+     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;oversight-20090707-1BETA.tar</InstallScript>
+            <WebInterfaceURL>http://[NMT_IP]:8883/oversight/oversight.cgi</WebInterfaceURL>
+            <GayaInterfaceURL>http://localhost:8883/oversight/oversight.cgi</GayaInterfaceURL>
+            <Screenshots>
+                <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-page1.png</URL>
+                <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-textmode.png</URL>
+                <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-movie.png</URL>
+                <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-tv.png</URL>
+                <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-setup.png</URL>
+            </Screenshots>
+            <UsageInstructions>
+                If you used oversight V1, please note the link is changed to http://[NMT_IP]:8883/oversight/oversight.cgi
+            </UsageInstructions>
+            <Forum>http://www.networkedmediatank.com/showthread.php?tid=17637</Forum>
+<Changelog>
+   Jun 5 / 20090605-2BETA:
+   catalog  : Minor bug fix to tvscanning when mapping imdbid to tvdbid
+
+   20090706-1BETA
+   unpak      Fix reference to NZBOP_APPBIN for older nzbget
+   20090605-1BETA
+   catalog  : Fix bug for YAMJ multi-part naming convention
+              Display scan progress.
+              Get Season Posters from thetvdb.com then imdb
+              Get Movie Posters from themoviedb.com / motechposters.com / imdb
+              Search for imdblinks in online usenet nfo files.
+              Removed deep search - not accurate enought
+              Abbreviation Detection - eg ttscc , Grk , dh501 combined with usenet file search.
+              Parsing and grouping of Big Brother UK format 
+              Better Grouping of Daily Shows and Unknown shows
+              Can use locally stored posters.
+
+Known Issues :    Sample Deletions not working for some.
+                  Correct detection of law and order : svu [ enhance abbreviated search ]
+                  Reduce false positives further.
+
+Coming Soon :     Transmission integration / USB NAS support.
+                  Hide Show Rating
+                  Auto Box Set.
+                  
+Mar14: unpak  : Fix to delete sample files.
+Mar14: catalog  : Fix for quoted files. Should solve some scanning issues people are having.
+Mar14: catalog  : Fix multipart detection. CD01 
+Mar14: catalog  : Detect when Epguides links to pilot episode on IMDB rather than series e.g &quot;Ugly Betty&quot;. 
+Mar07: catalog  : Fix for short imdb ids (5 digit eg Simpsons)
+Mar05: oversight: Added Poster View
+Mar03: oversight: Update tool / unrolled db read loop
+Mar03: unpak    : cross platform fix to awk regex
+May01: catalog  : Split file detection fixed. 
+May01: unpak    : Cross platform unpak fixes. Another path bug fixed!
+Apr30: catalog  : Better matching C.S.I to CSI ,aaf-sp.s13e07 unpak:Removed &quot;which&quot; command
+</Changelog>
+        </Application>
+
+        <Application>
+            <Name>TvNZB</Name>
+     <Version>20090614-2</Version>
+     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_tvnzb-20090614-2.zip</DownloadURL>
+            <Author>Lordy</Author>
+            <Maintainer>Lordy</Maintainer>
+            <Description>Automatically download TV oriented NZB files from RSS and feed to nzbget. Also provides NZBget scheduling.</Description>
+            <Homepage>http://prodynamic.co.uk/nmt/tvnzb/tvnzb.html</Homepage>
+     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;tvnzb-20090614-2.tar</InstallScript>
+            <WebInterfaceURL>http://[NMT_IP]:8883/tvnzb.cgi</WebInterfaceURL>
+            <GayaInterfaceURL>http://localhost:8883/tvnzb.cgi</GayaInterfaceURL>
+            <Screenshots/>
+            <UsageInstructions/>
+            <Forum>http://www.networkedmediatank.com/showthread.php?tid=11133</Forum>
+<Changelog>
+    20090614-2: Oops removed some debug lines that broke downloads. 
+    20090614-1: Fixed matching agaist titles with html escapes
+    20090613-1: Added configurable match limit. Re-Added Skip/Fast Forward
+    20090611-1: Bug fix - newzleech feed fixed again.
+    20090610-3: Bug fix - feed 0 caused segfault (but left code that stopped newzleech working)
+    20090610-1: Accept multiple RSS feeds. More robust nzbget peak scheduling
+    20090528-1: Work with nzbget from firmware or from CSI.
+</Changelog>
+        </Application>
+
+        <Application>
+            <Name>Zebedee</Name>
+     <Version>20090610-1</Version>
+     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_zebedee-20090610-1.zip</DownloadURL>
+            <Author>Lordy</Author>
+            <Maintainer>Lordy</Maintainer>
+            <Description>Another GUI for nzbget that works in the browser or on the TV.</Description>
+            <Homepage>http://prodynamic.co.uk/nmt/zebedee/index.html</Homepage>
+     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;zebedee-20090610-1.tar</InstallScript>
+            <WebInterfaceURL>http://[NMT_IP]:8883/zebedee.cgi</WebInterfaceURL>
+            <GayaInterfaceURL>http://localhost:8883/zebedee.cgi</GayaInterfaceURL>
+            <WebInterfaceURL/>
+            <GayaInterfaceURL/>
+            <Screenshots/>
+            <UsageInstructions/>
+            <Forum>http://www.networkedmediatank.com/forumdisplay.php?fid=64</Forum>
+<Changelog>
+    20090610-1: Allow NZB upload via URL. Removed test pages as it adds extra maintenance effort and also seemed to confuse some users.
+    20090528-1: Work with nzbget from firmware or from CSI.
+    TODO : Rewrite for better visibilty of completed, failed jobs.
+</Changelog>
+        </Application>
+    </Applications>
+    <Themes/>
+    <Indexes/>
+    <WaitImageSets/>
+    <Webservices/>
+</Repository>
