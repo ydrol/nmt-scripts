@@ -1,15 +1,5 @@
-#!/bin/sh --
-true # MSDOS FIX Keep next blank line.
-
-##################################
-if [ $? != 0 ]; then             #
-    set -e                       #
-    sed 's/$//' "$0" > /tmp/$$ #
-    cat /tmp/$$ > "$0"           #
-    rm /tmp/$$                   #
-    exec /bin/sh "$0" "$@"       #
-    exit                         #
-fi                               #
+#!/bin/sh
+# $Id$
 ##################################
 #--------------------------------------------------------------------------
 # INSTALL SCRIPTS FOR SYABAS NMT PLATFORM (eg PopcornHour)

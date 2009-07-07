@@ -1,4 +1,5 @@
 #!/bin/sh
+# $Id$
 
 #quick awk script to check some things. gnu --lint didnt do the checks I wanted
 # maybe better to patch lint mode of gnu awk than to put any more effort into this script,

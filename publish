@@ -1,11 +1,12 @@
 #!/bin/sh
+# $Id:$
 #
 # Bundle up zip file. (also a tgz and a tar as HDX platforn only has tar)
 # appinfo.json is include for compatibility with CSI installer.
 set -e
 #set -x
-if [ $# -eq 0 ] ; then
-    echo "usage: $0 appname [filelist]"
+if [ $# -le 1 ] ; then
+    echo "usage: $0 appname version [filelist]"
     exit 1
 fi
 
@@ -58,8 +59,8 @@ HERE
 # $1 = name , rest = files
 create_archives() {
     name="$1" ; shift
-    zip -r $name.zip  "$@" 
-    tar cf $name.tar "$@"
+    tar --exclude=.svn -c -f $name.tar "$@"
+    zip -x*/.svn/* -r $name.zip  "$@" 
     gzip -c $name.tar > $name.tgz 
     zip csi_$name.zip $name.tar
 }
@@ -137,12 +138,27 @@ backup() {
 
 appname=$1 ; shift
 
+version_id=$1 ; shift
+
+case "$version_id" in
+	20[0-9][0-9]*)
+		echo Version $version_id
+		;;
+	*)
+		echo Invalid version $version_id ;
+		exit 1
+		;;
+esac
+
+if ! echo £version_id | grep ^20 [ -n "$version_id" ] ; then
+	echo "Version not set"
+fi
+
 timestamp=`date '+%Y%m%d%H%M'`
 
 rm -f $appname.zip $appname.version $appname.beta.version
 
 #Get version from first file
-version_id=`grep ^VERSION $1 | head -1 | sed 's/.*=//'`
 
 version_filename=$appname.version
 
@@ -170,8 +186,8 @@ echo === $version_id ===
 
 grep ^VERSION= "$@" */*.sh */*.BAT | sed 's/VERSION=//;s/:/	:	/'
 echo
-echo === LATEST COMMON FILES ===
-grep ^VERSION= ../common/*[a-z]
+echo === latest common files ===
+grep ^VERSION= ../nmt-scripts/*[a-z]
 echo
 
 if checkpoint "Publish `cat $version_filename` $app_id" ; then

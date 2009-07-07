@@ -1,15 +1,5 @@
-#!/bin/sh -- #
-# Convert script from DOS
-true                            #
-
-if [ $? != 0 ]; then            #
-    set -e                      #
-    sed 's/.$//' "$0" > /tmp/$$ #
-    cat /tmp/$$ > "$0"          #
-    rm /tmp/$$                  #
-    exec /bin/sh "$0" "$@"      #
-    exit                        #
-fi                              #
+#!/bin/sh 
+# $Id$
 
 VERSION=20090116-1
 #Cant use named pipes due to blocking at script level
