@@ -8,9 +8,8 @@
      <Version>20090707-2BETA</Version>
      <!--
      <DownloadURL>http://oversight.googlecode.com/files/csi_oversight-20090707-2BETA.zip</DownloadURL>
-     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_oversight-20090707-2BETA.zip</DownloadURL>
      -->
-     <DownloadURL>http://download139.mediafire.com/c1ud0x21g1fg/rzityzyzjfd/csi_oversight-20090707-2BETA.zip</DownloadURL>
+     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_oversight-20090707-2BETA.zip</DownloadURL>
             <Author>Lordy</Author>
             <Maintainer>Lordy</Maintainer>
             <Description>Hands free NMT jukebox. See stable release for full description.
