@@ -1,14 +1,10 @@
 #!/bin/sh
-# $Id$
-##################################
-# REAL SCRIPT FOLLOWS
-#--------------------------------------------------------------------------
-VERSION=20090225-1
+# $Id$ 
 
-HOME=$( echo $0 | sed -r 's|[^/]+$||' )
-HOME=$(cd "${HOME:-.}" ; pwd )
+APPDIR=$( echo $0 | sed -r 's|[^/]+$||' )
+APPDIR=$(cd "${APPDIR:-.}" ; pwd )
 
-#echo "HOME=$HOME"
+#echo "APPDIR=$APPDIR"
 
 #$1 = file
 #$2 = variable
