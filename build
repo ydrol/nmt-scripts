@@ -33,8 +33,6 @@ create_packages() {
 # $2 = Version
 # $3 = note
 update_csi_xml_repository() {
-    base=../nmt-scripts/RepositoryInfo.xml
-    cp "$base" "$base.old"
     awk '
 
 /<Version>/ {
@@ -76,8 +74,7 @@ update_csi_xml_repository() {
 
 
 1 { print }
-' "$base.old" > "$base"
-    ( cd ../nmt-scripts ; zip RepositoryInfo.zip RepositoryInfo.xml )
+' ../downloads/RepositoryInfo.xml > RepositoryInfo.xml &&  zip RepositoryInfo.zip RepositoryInfo.xml
 
 }
 
