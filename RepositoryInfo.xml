@@ -1,102 +1,13 @@
 <?xml version="1.0"?>
 <!-- Lordys Repository -->
 <Repository>
-    <DistributedRepositories/>
-    <Applications>
-        <Application>
-            <Name>Oversight</Name>
-     <Version>20090709-1BETA</Version>
-     <DownloadURL>http://oversight.googlecode.com/svn/trunk/packages/csi_oversight-20090709-1BETA.zip</DownloadURL>
-            <Author>Lordy</Author>
-            <Maintainer>Lordy</Maintainer>
-            <Description>Hands free NMT jukebox. See stable release for full description.
-If upgrading you should create a new oversight.cfg from oversight.cfg.example. There are new settings for poster view.
-If the upgrade doesnt work please use the mini-installer to restore http://prodynamic.co.uk/nmt/installer/index.html
-Known Issues: oversight: The index may dissapear during delete operation. A rescan will bring it back.
-            </Description>
-
-            <Homepage>http://code.google.com/p/oversight/</Homepage>
-     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;oversight-20090709-1BETA.tar</InstallScript>
-            <WebInterfaceURL>http://[NMT_IP]:8883/oversight/oversight.cgi</WebInterfaceURL>
-            <GayaInterfaceURL>http://localhost:8883/oversight/oversight.cgi</GayaInterfaceURL>
-            <Screenshots>
-                <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-page1.png</URL>
-                <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-textmode.png</URL>
-                <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-movie.png</URL>
-                <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-tv.png</URL>
-                <URL>http://prodynamic.co.uk/nmt/oversight/ovs2-setup.png</URL>
-            </Screenshots>
-            <UsageInstructions>
-                If you used oversight V1, please note the link is changed to http://[NMT_IP]:8883/oversight/oversight.cgi
-            </UsageInstructions>
-            <Forum>http://www.networkedmediatank.com/showthread.php?tid=17637</Forum>
-<Changelog>http://code.google.com/p/oversight/wiki/ChangeLog</Changelog>
-        </Application>
-
-
-        <Application>
-            <Name>FeedTime</Name>
-     <Version>20090709-1</Version>
-     <DownloadURL>http://feedtime.googlecode.com/svn/trunk/packages/csi_feedtime-20090709-1.zip</DownloadURL>
-            <Author>Lordy</Author>
-            <Maintainer>Lordy</Maintainer>
-            <Description>[was TVNZB] Automatically download TV oriented NZB files from RSS and feed to nzbget. Also provides NZBget scheduling. It runs in the internal gaya server and Does NOT require myIhome service running.
-                Tvnzb has changed name - to avoid confusion with tvnzb.com and to allow wider scope in the future.
-            </Description>
-            <Homepage>http://code.google.com/p/feedtime/</Homepage>
-     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;feedtime-20090709-1.tar</InstallScript>
-            <WebInterfaceURL>http://[NMT_IP]:8883/feedtime.cgi</WebInterfaceURL>
-            <GayaInterfaceURL>http://localhost:8883/feedtime.cgi</GayaInterfaceURL>
-            <Screenshots/>
-            <UsageInstructions>
-                The tvnzb configurations will be copied across to the new feedtime location.
-                Please uninstall tvnzb after installing feedtime and checking the configuration.
-            </UsageInstructions>
-            <Forum>http://www.networkedmediatank.com/showthread.php?tid=11133</Forum>
-            <Changelog>http://code.google.com/p/feedtime/wiki/ChangeLog</Changelog>
-        </Application>
-
-        <Application>
-            <Name>Zebedee</Name>
-            <Version>20090610-1</Version>
-            <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_zebedee-20090610-1.zip</DownloadURL>
-            <Author>Lordy</Author>
-            <Maintainer>Lordy</Maintainer>
-            <Description>Another GUI for nzbget that works in the browser or on the TV.</Description>
-            <Homepage>http://prodynamic.co.uk/nmt/zebedee/index.html</Homepage>
-            <InstallScript>Apps/AppInit/appinit.cgi?install&amp;zebedee-20090610-1.tar</InstallScript>
-            <WebInterfaceURL>http://[NMT_IP]:8883/zebedee.cgi</WebInterfaceURL>
-            <GayaInterfaceURL>http://localhost:8883/zebedee.cgi</GayaInterfaceURL>
-            <WebInterfaceURL/>
-            <GayaInterfaceURL/>
-            <Screenshots/>
-            <UsageInstructions/>
-            <Forum>http://www.networkedmediatank.com/forumdisplay.php?fid=64</Forum>
-<Changelog>
-    20090610-1: Allow NZB upload via URL. Removed test pages as it adds extra maintenance effort and also seemed to confuse some users.
-    20090528-1: Work with nzbget from firmware or from CSI.
-    TODO : Rewrite for better visibilty of completed, failed jobs.
-</Changelog>
-        </Application>
-        <!--
-        <Application>
-            <Name>TvNZB</Name>
-     <Version>20090614-2</Version>
-     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_tvnzb-20090614-2.zip</DownloadURL>
-            <Author>Lordy</Author>
-            <Maintainer>Lordy</Maintainer>
-            <Description>Automatically download TV oriented NZB files from RSS and feed to nzbget. Also provides NZBget scheduling.</Description>
-            <Homepage>http://prodynamic.co.uk/nmt/tvnzb/tvnzb.html</Homepage>
-     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;tvnzb-20090614-2.tar</InstallScript>
-            <WebInterfaceURL>http://[NMT_IP]:8883/tvnzb.cgi</WebInterfaceURL>
-            <GayaInterfaceURL>http://localhost:8883/tvnzb.cgi</GayaInterfaceURL>
-            <Screenshots/>
-            <UsageInstructions/>
-            <Forum>http://www.networkedmediatank.com/showthread.php?tid=11133</Forum>
-            <Changelog>http://code.google.com/p/feedtime/wiki/ChangeLog</Changelog>
-        </Application>
-        -->
-    </Applications>
+   <DistributedRepositories>
+      <Repository>
+         <Name>lordy0</Name>
+         <URL>http://nmt-mini-installer.googlecode.com/svn/downloads/RepositoryInfo.zip</URL>
+      </Repository>
+   </DistributedRepositories>
+    <Applications/>
     <Themes/>
     <Indexes/>
     <WaitImageSets/>
