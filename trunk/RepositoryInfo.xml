@@ -33,41 +33,28 @@ Known Issues: oversight: The index may dissapear during delete operation. A resc
 <Changelog>http://code.google.com/p/oversight/wiki/ChangeLog</Changelog>
         </Application>
 
-        <Application>
-            <Name>TvNZB</Name>
-     <Version>20090614-2</Version>
-     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_tvnzb-20090614-2.zip</DownloadURL>
-            <Author>Lordy</Author>
-            <Maintainer>Lordy</Maintainer>
-            <Description>Automatically download TV oriented NZB files from RSS and feed to nzbget. Also provides NZBget scheduling.</Description>
-            <Homepage>http://prodynamic.co.uk/nmt/tvnzb/tvnzb.html</Homepage>
-     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;tvnzb-20090614-2.tar</InstallScript>
-            <WebInterfaceURL>http://[NMT_IP]:8883/tvnzb.cgi</WebInterfaceURL>
-            <GayaInterfaceURL>http://localhost:8883/tvnzb.cgi</GayaInterfaceURL>
-            <Screenshots/>
-            <UsageInstructions/>
-            <Forum>http://www.networkedmediatank.com/showthread.php?tid=11133</Forum>
-            <Changelog>http://code.google.com/p/influz/wiki/ChangeLog</Changelog>
-        </Application>
 
-        <!--
         <Application>
-            <Name>Influz</Name>
+            <Name>FeedTime</Name>
      <Version>20090709-1</Version>
-     <DownloadURL>http://influz.googlecode.com/svn/trunk/packages/csi_influz-20090709-1.zip</DownloadURL>
+     <DownloadURL>http://feedtime.googlecode.com/svn/trunk/packages/csi_feedtime-20090709-1.zip</DownloadURL>
             <Author>Lordy</Author>
             <Maintainer>Lordy</Maintainer>
-            <Description>[was TVNZB] Automatically download TV oriented NZB files from RSS and feed to nzbget. Also provides NZBget scheduling.</Description>
-            <Homepage>http://code.google.com/p/influz/</Homepage>
-     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;influz-20090709-1.tar</InstallScript>
-            <WebInterfaceURL>http://[NMT_IP]:8883/influz.cgi</WebInterfaceURL>
-            <GayaInterfaceURL>http://localhost:8883/influz.cgi</GayaInterfaceURL>
+            <Description>[was TVNZB] Automatically download TV oriented NZB files from RSS and feed to nzbget. Also provides NZBget scheduling. It runs in the internal gaya server and Does NOT require myIhome service running.
+                Tvnzb has changed name - to avoid confusion with tvnzb.com and to allow wider scope in the future.
+            </Description>
+            <Homepage>http://code.google.com/p/feedtime/</Homepage>
+     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;feedtime-20090709-1.tar</InstallScript>
+            <WebInterfaceURL>http://[NMT_IP]:8883/feedtime.cgi</WebInterfaceURL>
+            <GayaInterfaceURL>http://localhost:8883/feedtime.cgi</GayaInterfaceURL>
             <Screenshots/>
-            <UsageInstructions/>
+            <UsageInstructions>
+                The tvnzb configurations will be copied across to the new feedtime location.
+                Please uninstall tvnzb after installing feedtime and checking the configuration.
+            </UsageInstructions>
             <Forum>http://www.networkedmediatank.com/showthread.php?tid=11133</Forum>
-            <Changelog>http://code.google.com/p/influz/wiki/ChangeLog</Changelog>
+            <Changelog>http://code.google.com/p/feedtime/wiki/ChangeLog</Changelog>
         </Application>
-        -->
 
         <Application>
             <Name>Zebedee</Name>
@@ -91,6 +78,24 @@ Known Issues: oversight: The index may dissapear during delete operation. A resc
     TODO : Rewrite for better visibilty of completed, failed jobs.
 </Changelog>
         </Application>
+        <!--
+        <Application>
+            <Name>TvNZB</Name>
+     <Version>20090614-2</Version>
+     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_tvnzb-20090614-2.zip</DownloadURL>
+            <Author>Lordy</Author>
+            <Maintainer>Lordy</Maintainer>
+            <Description>Automatically download TV oriented NZB files from RSS and feed to nzbget. Also provides NZBget scheduling.</Description>
+            <Homepage>http://prodynamic.co.uk/nmt/tvnzb/tvnzb.html</Homepage>
+     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;tvnzb-20090614-2.tar</InstallScript>
+            <WebInterfaceURL>http://[NMT_IP]:8883/tvnzb.cgi</WebInterfaceURL>
+            <GayaInterfaceURL>http://localhost:8883/tvnzb.cgi</GayaInterfaceURL>
+            <Screenshots/>
+            <UsageInstructions/>
+            <Forum>http://www.networkedmediatank.com/showthread.php?tid=11133</Forum>
+            <Changelog>http://code.google.com/p/feedtime/wiki/ChangeLog</Changelog>
+        </Application>
+        -->
     </Applications>
     <Themes/>
     <Indexes/>
