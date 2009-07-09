@@ -1,18 +1,28 @@
-#!/bin/sh 
-# $Id$
-
-VERSION=20090116-1
+#!/bin/sh
+# $Id$ 
 #Cant use named pipes due to blocking at script level
+
+#######################################################
+# THIS IS ALL BROKEN For a number of reasons.
+# Main one - hdx has no de-compression tools.
+# no unzip or gunzip - only common tool is unrar
+# but I dont want to create rar files as they 
+# are not free.
+####################################################
+# Now csi uses tar wrapped in zip so we should
+# standardise on zip for simplicity.
+# but it means hdx/egreat users must instally a newer busybox
+# #################################################
 EXE=$0
 while [ -L "$EXE" ] ; do
     EXE=$( ls -l "$EXE" | sed 's/.*-> //' )
 done
-HOME=$( echo $EXE | sed -r 's|[^/]+$||' )
-HOME=$(cd "${HOME:-.}" ; pwd )
+APPDIR=$( echo $EXE | sed -r 's|[^/]+$||' )
+APPDIR=$(cd "${APPDIR:-.}" ; pwd )
 TVMODE=`cat /tmp/tvmode`
 OWNER=nmt
 GROUP=nmt
-cd "$HOME"
+cd "$APPDIR"
 
 PERMS() {
     chown $OWNER:$GROUP "$1" "$1"/*
@@ -23,39 +33,67 @@ HTML() {
 }
 
 
-site="http://prodynamic.co.uk/nmt/$appname"
-backupdir="$HOME.backup_undo"
+site="http://prodynamic.co.uk/nmt/"
+site="http://$appnname.googlecode.com/svn/trunk/packages/"
+
+backupdir="$APPDIR.backup_undo"
+
+# $1 = remove version file
+get_new_version() {
+    rm -f $$.v
+    if wget -q -O $$.v "$site/$1" ; then
+        cat $$.v
+    else
+        echo ""
+    fi
+    rm -f $$.v
+}
+
 
 UPGRADE() {
 
     appname="$1"
 
-    cd "$HOME"
+    cd "$APPDIR"
 
-    #Because HDX/Istar lacks any compression utils using tar files from now on.
+    new_version_file=version.dl
+
     echo "<p>Start $1<p>"
     case "$2" in 
-        check)
-            rm -f VERSION
-            if ! wget -q -O VERSION "$site/VERSION" ; then
-                echo ERROR > VERSION
-                PERMS .
-                exit 1
+        check_stable)
+            v=`get_new_version $1.version`
+            if [ -n "$v" ] ; then
+                echo $v > $new_version_file
+            else
+                echo ERROR > $new_version_file
             fi
+            chown -R $OWNER:$GROUP $new_version_file
             ;;
-        checkbeta)
-            rm -f VERSION
-            if ! wget -q -O VERSION "$site/VERSION-BETA" ; then
-                echo ERROR > VERSION
-                PERMS .
-                exit 1
-            fi
+        check_stable_or_beta)
+            #Check both beta and offical releases.
+            v=`get_new_version $1.version`
+            vb=`get_new_version $1.beta.version`
+
+            #use awk for ordered string compare
+            echo | awk '
+            END {
+  v="'"$v"'";
+  vb="'"$vb"'";
+  if (v > vb ) {
+      print v;
+  } else if (vb != "" ) {
+    print vb;
+  } else {
+    print "ERROR";
+  }
+}' > $new_version_file
+            chown -R $OWNER:$GROUP $new_version_file
             ;;
+        re-install|install)
             #This is not a first time install but just to overwrite files with
             # downloaded ones. see install-cgi for first time install
-        install)
-            NEWVERSION=`cat VERSION`
-            tardir="$HOME/versions"
+            NEWVERSION=`cat $new_version_file`
+            tardir="$APPDIR/versions"
             newtgzfile="$appname-$NEWVERSION.tgz" 
             newtarfile="$appname-$NEWVERSION.tar" 
 
@@ -63,16 +101,16 @@ UPGRADE() {
             PERMS .
 
             #Get new
-            HTML Fetch $site/$newtgzfile 
+            HTML Fetch $site/$appname/$newtgzfile 
             rm -f -- "$tardir/$newtgzfile"
-            if ! wget -q  -O "$tardir/$newtgzfile" "$site/$newtgzfile" ; then
-                echo "ERROR getting $site/$newtgzfile" > VERSION;
+            if ! wget -q  -O "$tardir/$newtgzfile" "$site/$appname/$newtgzfile" ; then
+                echo "ERROR getting $site/$appname/$newtgzfile" > $new_version_file;
                 PERMS .
                 exit 1
             fi
 
-            $HOME/gunzip.php "$newtgzfile" "$newtarfile"
-            rm -f "$newtgzfile"
+            $APPDIR/gunzip.php "$tardir/$newtgzfile" "$tardir/$newtarfile"
+            rm -f "$tardir/$newtgzfile"
 
             HTML Backup old files
             if [ -d "$backupdir" ] ; then
@@ -81,29 +119,23 @@ UPGRADE() {
                 fi
                 mv "$backupdir" "$backupdir.2"
             fi
-            cp -a "$HOME" "$backupdir"
+            cp -a "$APPDIR" "$backupdir"
 
-            if [ -f pre-update.sh ] ; then rm -f ./pre-update.sh ;  fi
             if [ -f post-update.sh ] ; then rm -f ./post-update.sh || true ; fi
 
             HTML Unpack new files
             tar xf "$tardir/$newtarfile"
             chown -R $OWNER:$GROUP .
 
-            HTML Pre Update actions
-            if [ -f pre-update.sh ] ; then
-                ./pre-update.sh || true
-                rm -f ./pre-update.sh || true
-            fi
-
             HTML Set Permissions
             PERMS "$tardir"
 
             HTML Post Update actions
             if [ -f post-update.sh ] ; then
-                ./post-update.sh || true
+                APPDIR="$APPDIR" ./post-update.sh || true
                 rm -f ./post-update.sh || true
             fi
+            rm -f $new_version_file
 
             HTML Upgrade Complete
             ;;
@@ -119,14 +151,25 @@ UPGRADE() {
                 rm -fr -- "$backupdir.abort"
             fi
 
-            mv "$HOME" "$backupdir.abort"
-            mv "$backupdir" "$HOME"
+            mv "$APPDIR" "$backupdir.abort"
+            mv "$backupdir" "$APPDIR"
             chown -R $OWNER:$GROUP .
 
+            rm -f $new_version_file
             HTML Undo Complete
             ;;
     esac
 
 }
 
-UPGRADE "$@"
+#
+# DISABLED UNTIL DONE PROPERLY
+#
+#logdir="$APPDIR/logs"
+#
+#mkdir -p "$logdir"
+#
+#UPGRADE "$@" > $logdir/upgrade.$$.log 2>&1
+#
+#chown -R $OWNER:$GROUP $logdir
+#

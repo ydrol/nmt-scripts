@@ -5,11 +5,8 @@
     <Applications>
         <Application>
             <Name>Oversight</Name>
-     <Version>20090707-2BETA</Version>
-     <!--
-     <DownloadURL>http://oversight.googlecode.com/files/csi_oversight-20090707-2BETA.zip</DownloadURL>
-     -->
-     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_oversight-20090707-2BETA.zip</DownloadURL>
+     <Version>20090709-1BETA</Version>
+     <DownloadURL>http://oversight.googlecode.com/svn/trunk/packages/csi_oversight-20090709-1BETA.zip</DownloadURL>
             <Author>Lordy</Author>
             <Maintainer>Lordy</Maintainer>
             <Description>Hands free NMT jukebox. See stable release for full description.
@@ -18,8 +15,8 @@ If the upgrade doesnt work please use the mini-installer to restore http://prody
 Known Issues: oversight: The index may dissapear during delete operation. A rescan will bring it back.
             </Description>
 
-            <Homepage>http://prodynamic.co.uk/nmt/oversight/oversight.html</Homepage>
-     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;oversight-20090707-2BETA.tar</InstallScript>
+            <Homepage>http://code.google.com/p/oversight/</Homepage>
+     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;oversight-20090709-1BETA.tar</InstallScript>
             <WebInterfaceURL>http://[NMT_IP]:8883/oversight/oversight.cgi</WebInterfaceURL>
             <GayaInterfaceURL>http://localhost:8883/oversight/oversight.cgi</GayaInterfaceURL>
             <Screenshots>
@@ -36,6 +33,7 @@ Known Issues: oversight: The index may dissapear during delete operation. A resc
 <Changelog>http://code.google.com/p/oversight/wiki/ChangeLog</Changelog>
         </Application>
 
+        <!--
         <Application>
             <Name>TvNZB</Name>
      <Version>20090614-2</Version>
@@ -50,26 +48,36 @@ Known Issues: oversight: The index may dissapear during delete operation. A resc
             <Screenshots/>
             <UsageInstructions/>
             <Forum>http://www.networkedmediatank.com/showthread.php?tid=11133</Forum>
-<Changelog>
-    20090614-2: Oops removed some debug lines that broke downloads. 
-    20090614-1: Fixed matching agaist titles with html escapes
-    20090613-1: Added configurable match limit. Re-Added Skip/Fast Forward
-    20090611-1: Bug fix - newzleech feed fixed again.
-    20090610-3: Bug fix - feed 0 caused segfault (but left code that stopped newzleech working)
-    20090610-1: Accept multiple RSS feeds. More robust nzbget peak scheduling
-    20090528-1: Work with nzbget from firmware or from CSI.
-</Changelog>
+            <Changelog>http://code.google.com/p/influz/wiki/ChangeLog</Changelog>
+        </Application>
+        -->
+
+        <Application>
+            <Name>Influz</Name>
+     <Version>20090709-1</Version>
+     <DownloadURL>http://influz.googlecode.com/svn/trunk/packages/csi_influz-20090709-1.zip</DownloadURL>
+            <Author>Lordy</Author>
+            <Maintainer>Lordy</Maintainer>
+            <Description>[was TVNZB] Automatically download TV oriented NZB files from RSS and feed to nzbget. Also provides NZBget scheduling.</Description>
+            <Homepage>http://code.google.com/p/influz/</Homepage>
+     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;influz-20090709-1.tar</InstallScript>
+            <WebInterfaceURL>http://[NMT_IP]:8883/influz.cgi</WebInterfaceURL>
+            <GayaInterfaceURL>http://localhost:8883/influz.cgi</GayaInterfaceURL>
+            <Screenshots/>
+            <UsageInstructions/>
+            <Forum>http://www.networkedmediatank.com/showthread.php?tid=11133</Forum>
+            <Changelog>http://code.google.com/p/influz/wiki/ChangeLog</Changelog>
         </Application>
 
         <Application>
             <Name>Zebedee</Name>
-     <Version>20090610-1</Version>
-     <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_zebedee-20090610-1.zip</DownloadURL>
+            <Version>20090610-1</Version>
+            <DownloadURL>http://www.prodynamic.co.uk/nmt/csirepository/csi_zebedee-20090610-1.zip</DownloadURL>
             <Author>Lordy</Author>
             <Maintainer>Lordy</Maintainer>
             <Description>Another GUI for nzbget that works in the browser or on the TV.</Description>
             <Homepage>http://prodynamic.co.uk/nmt/zebedee/index.html</Homepage>
-     <InstallScript>Apps/AppInit/appinit.cgi?install&amp;zebedee-20090610-1.tar</InstallScript>
+            <InstallScript>Apps/AppInit/appinit.cgi?install&amp;zebedee-20090610-1.tar</InstallScript>
             <WebInterfaceURL>http://[NMT_IP]:8883/zebedee.cgi</WebInterfaceURL>
             <GayaInterfaceURL>http://localhost:8883/zebedee.cgi</GayaInterfaceURL>
             <WebInterfaceURL/>
