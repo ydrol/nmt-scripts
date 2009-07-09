@@ -59,7 +59,7 @@ update_csi_xml_repository() {
 }
 
 /<DownloadURL>/ && in_version {
-    print "     <DownloadURL>http://'"$1"'.googlecode.com/svn/trunk/packages/csi_'"$1-$2"'.zip</DownloadURL>";
+    print "     <DownloadURL>http://nmt-mini-installer.googlecode.com/svn/downloads/'"$1"'/csi_'"$1-$2"'.zip</DownloadURL>";
     next;
 }
 /<InstallScript>/ && in_version {
@@ -93,7 +93,7 @@ appname=$1 ; shift
 version_id=$1 ; shift
 
 case "$version_id" in
-	20[0-9][0-9]*)
+	20[01][0-9][01][0-9][0-3][0-9]-[0-9]*)
 		echo Version $version_id
 		;;
 	*)
@@ -101,10 +101,6 @@ case "$version_id" in
 		exit 1
 		;;
 esac
-
-if ! echo £version_id | grep ^20 [ -n "$version_id" ] ; then
-	echo "Version not set"
-fi
 
 rm -f $appname.zip $appname.version $appname.beta.version
 
@@ -134,10 +130,10 @@ dest=$appname$suffix
 
 echo === $version_id ===
 
-grep ^VERSION= "$@" */*.sh */*.BAT | sed 's/VERSION=//;s/:/	:	/'
+grep ^VERSION= "$@" | sed 's/VERSION=//;s/:/	:	/'
 echo
 echo === latest common files ===
-grep ^VERSION= ../nmt-scripts/*[a-z]
+grep ^VERSION= ../nmt-scripts/*.sh
 echo
 
 if checkpoint "Create packages for `cat $version_filename` $app_id in ./packages/" ; then
