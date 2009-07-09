@@ -33,7 +33,6 @@ Known Issues: oversight: The index may dissapear during delete operation. A resc
 <Changelog>http://code.google.com/p/oversight/wiki/ChangeLog</Changelog>
         </Application>
 
-        <!--
         <Application>
             <Name>TvNZB</Name>
      <Version>20090614-2</Version>
@@ -50,8 +49,8 @@ Known Issues: oversight: The index may dissapear during delete operation. A resc
             <Forum>http://www.networkedmediatank.com/showthread.php?tid=11133</Forum>
             <Changelog>http://code.google.com/p/influz/wiki/ChangeLog</Changelog>
         </Application>
-        -->
 
+        <!--
         <Application>
             <Name>Influz</Name>
      <Version>20090709-1</Version>
@@ -68,6 +67,7 @@ Known Issues: oversight: The index may dissapear during delete operation. A resc
             <Forum>http://www.networkedmediatank.com/showthread.php?tid=11133</Forum>
             <Changelog>http://code.google.com/p/influz/wiki/ChangeLog</Changelog>
         </Application>
+        -->
 
         <Application>
             <Name>Zebedee</Name>
