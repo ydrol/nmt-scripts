@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Id$
 
 #quick awk script to check some things. gnu --lint didnt do the checks I wanted
 # maybe better to patch lint mode of gnu awk than to put any more effort into this script,
@@ -21,8 +20,10 @@ BEGIN {
     ks="if then else while do return match substr index sub gsub in getline ";
     ks=ks" RSTART RLENGTH print systime open close FS NF exit break for system ";
     ks=ks" delete return split tolower toupper length continue sprintf int";
-    ks=ks" rand printf";
+    ks=ks" rand printf ";
     gsub(/ +/," ",ks);
+    gsub(/^ +/,"",ks);
+    gsub(/ +$/,"",ks);
     split(ks,k," ");
     for (i in k) {
         kwd[k[i]]=1;

@@ -16,10 +16,10 @@ create_packages() {
     name="$1" ; shift
 
     #Create the zip package for direct download by the csi installer.
-    zip -x*/.svn/* -r packages/$dest.zip  "$@" 
+    zip -x*/.svn/* -x*/*~ -r packages/$dest.zip  "$@" 
 
     #Create the csi inner tar file
-    tar --exclude=.svn -c -f packages/$name.tar "$@"
+    tar --exclude=.svn --exclude=*~ -c -f packages/$name.tar "$@"
 
     #Create the csi outer zip
     cd packages
@@ -74,7 +74,9 @@ update_csi_xml_repository() {
 
 
 1 { print }
-' ../downloads/RepositoryInfo.xml > RepositoryInfo.xml &&  zip RepositoryInfo.zip RepositoryInfo.xml
+' ../downloads/RepositoryInfo.xml > RepositoryInfo.xml &&\
+  zip RepositoryInfo.zip RepositoryInfo.xml &&\
+  mv RepositoryInfo.??? packages
 
 }
 
