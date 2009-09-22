@@ -1,3 +1,5 @@
+#!/bin/sh
+
 hsize=1000
 hfile=/share/.history
 
