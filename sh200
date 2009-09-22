@@ -1,22 +1,23 @@
 #!/bin/sh
+# $Id: $
 
-hsize=1000
-hfile=/share/.history
+c200_var_hsize=1000
+c200_var_hfile=/share/.history
 
-prompt() {
+c200_fn_prompt() {
     echo 
-    /bin/echo -n "$PWD> "
+    /bin/echo -n "$USER@`hostname` [$PWD] > "
 }
 
-lasthist() {
-    if [ -f "$hfile" ] ; then
-        awk 'END { print $1; }' "$hfile"
+c200_fn_lasthist() {
+    if [ -f "$c200_var_hfile" ] ; then
+        awk 'END { print $1; }' "$c200_var_hfile"
     else
         echo 0
     fi
 }
 
-wcl() {
+c200_fn_wcl() {
     if [ -f "$1" ] ; then
         awk 'END { print NR; }' "$@" 
     else
@@ -24,46 +25,44 @@ wcl() {
     fi
 }
 
-trimhist() {
-    t=`wcl $hfile`
-    s=$(( t - $hsize -1 ))
-    if [ $s -gt 0 ] ; then
-        sed -i "1,$s d" $hfile
+c200_fn_trimhist() {
+    if [ $(( `c200_fn_wcl $c200_var_hfile` - $c200_var_hsize -1 )) -gt 0 ] ; then
+        sed -i "1,$s d" $c200_var_hfile
     fi
 }
 
-tab="	"
+c200_var_tab="	"
 
-record() {
+c200_fn_record() {
     if [ -n "$1" ] ; then
-        histno=$((`lasthist` + 1 ))
-        if [ -f "$hfile" ] ; then
-            if fgrep -v "$tab$1$tab" $hfile > /tmp/$$ ; then
-                mv /tmp/$$ $hfile
+        histno=$((`c200_fn_lasthist` + 1 ))
+        if [ -f "$c200_var_hfile" ] ; then
+            if fgrep -v "$c200_var_tab$1$c200_var_tab" $c200_var_hfile > /tmp/$$ ; then
+                mv /tmp/$$ $c200_var_hfile
             else
                 rm -f /tmp/$$
             fi
-            trimhist
+            c200_fn_trimhist
         fi
-        echo "$histno$tab$1$tab" >> $hfile
+        echo "$histno$c200_var_tab$1$c200_var_tab" >> $c200_var_hfile
     fi
 }
 
-showhist() {
+c200_fn_showhist() {
     
-    sed "s/$tab/ /" $hfile 2>/dev/null || echo "No history"
+    sed "s/$c200_var_tab/ /" $c200_var_hfile 2>/dev/null || echo "No history"
     echo
 }
 
-runhist() {
-    histno="${1#!}"
-    line=`sed -rn "/^$histno$tab/ {s/^[0-9]+$tab//;s/$tab\$//;p}" $hfile`
-    echo ">> $line <<"
-    record "$line"
-    eval "$line"
+c200_fn_runhist() {
+    c200_var_histno="${1#!}"
+    c200_var_line=`sed -rn "/^$c200_var_histno$c200_var_tab/ {s/^[0-9]+$c200_var_tab//;s/$c200_var_tab\$//;p}" $c200_var_hfile`
+    echo ">> $c200_var_line <<"
+    c200_fn_record "$c200_var_line"
+    eval "$c200_var_line"
 }
     
-helphist() {
+c200_fn_helphist() {
 cat <<HERE
 h      - history
 !12     - run command 12 in history
@@ -74,33 +73,36 @@ HERE
 }
 
  
-helphist
+c200_fn_helphist
 while true ; do
-    prompt
-    lastline="$line"
-    read line 
-    case "$line" in
+
+    c200_fn_prompt
+
+    c200_var_lastline="$c200_var_line"
+
+    read c200_var_line 
+    case "$c200_var_line" in
     exit|q)
         break ;;
     h)
-        showhist ;;
+        c200_fn_showhist ;;
     !h)
-        rm -f "$hfile"
+        rm -f "$c200_var_hfile"
         ;;
     ![0-9]*)
-        runhist "$line" ;;
+        c200_fn_runhist "$c200_var_line" ;;
     s/*)
-        line=`echo "$lastline" | sed -r "$line"`
-        echo ">> $line <<"
-        record "$line"
-        eval "$line"
+        c200_var_line=`echo "$c200_var_lastline" | sed -r "$c200_var_line"`
+        echo ">> $c200_var_line <<"
+        c200_fn_record "$c200_var_line"
+        eval "$c200_var_line"
         ;;
         
-    \?) helphist;;
+    \?) c200_fn_helphist;;
 
     *)
-        record "$line"
-        eval "$line"
+        c200_fn_record "$c200_var_line"
+        eval "$c200_var_line"
         ;;
     esac
 done
