@@ -96,10 +96,11 @@ while true ; do
         eval "$line"
         ;;
         
+    \?) helphist;;
+
     *)
         record "$line"
         eval "$line"
         ;;
-    \?) helphist;;
     esac
 done
