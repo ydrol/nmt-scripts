@@ -1,0 +1,103 @@
+hsize=1000
+hfile=/share/.history
+
+prompt() {
+    echo 
+    /bin/echo -n "$PWD> "
+}
+
+lasthist() {
+    if [ -f "$hfile" ] ; then
+        awk 'END { print $1; }' "$hfile"
+    else
+        echo 0
+    fi
+}
+
+wcl() {
+    if [ -f "$1" ] ; then
+        awk 'END { print NR; }' "$@" 
+    else
+        echo 0
+    fi
+}
+
+trimhist() {
+    t=`wcl $hfile`
+    s=$(( t - $hsize -1 ))
+    if [ $s -gt 0 ] ; then
+        sed -i "1,$s d" $hfile
+    fi
+}
+
+tab="	"
+
+record() {
+    if [ -n "$1" ] ; then
+        histno=$((`lasthist` + 1 ))
+        if [ -f "$hfile" ] ; then
+            if fgrep -v "$tab$1$tab" $hfile > /tmp/$$ ; then
+                mv /tmp/$$ $hfile
+            else
+                rm -f /tmp/$$
+            fi
+            trimhist
+        fi
+        echo "$histno$tab$1$tab" >> $hfile
+    fi
+}
+
+showhist() {
+    
+    sed "s/$tab/ /" $hfile 2>/dev/null || echo "No history"
+    echo
+}
+
+runhist() {
+    histno="${1#!}"
+    line=`sed -rn "/^$histno$tab/ {s/^[0-9]+$tab//;s/$tab\$//;p}" $hfile`
+    echo ">> $line <<"
+    record "$line"
+    eval "$line"
+}
+    
+helphist() {
+cat <<HERE
+h      - history
+!12     - run command 12 in history
+!h     - delete history
+s/a/b/ - sed on last command
+q      - quit
+HERE
+}
+
+ 
+helphist
+while true ; do
+    prompt
+    lastline="$line"
+    read line 
+    case "$line" in
+    exit|q)
+        break ;;
+    h)
+        showhist ;;
+    !h)
+        rm -f "$hfile"
+        ;;
+    ![0-9]*)
+        runhist "$line" ;;
+    s/*)
+        line=`echo "$lastline" | sed -r "$line"`
+        echo ">> $line <<"
+        record "$line"
+        eval "$line"
+        ;;
+        
+    *)
+        record "$line"
+        eval "$line"
+        ;;
+    \?) helphist;;
+    esac
+done
