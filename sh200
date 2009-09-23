@@ -37,14 +37,12 @@ c200_fn_record() {
     if [ -n "$1" ] ; then
         histno=$((`c200_fn_lasthist` + 1 ))
         if [ -f "$c200_var_hfile" ] ; then
-            if fgrep -v "$c200_var_tab$1$c200_var_tab" $c200_var_hfile > /tmp/$$ ; then
-                mv /tmp/$$ $c200_var_hfile
-            else
-                rm -f /tmp/$$
+            if fgrep -v "$c200_var_tab$1$c200_var_tab" $c200_var_hfile /dev/null ; then
+                return
             fi
-            c200_fn_trimhist
         fi
         echo "$histno$c200_var_tab$1$c200_var_tab" >> $c200_var_hfile
+        c200_fn_trimhist
     fi
 }
 
