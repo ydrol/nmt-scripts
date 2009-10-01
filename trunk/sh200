@@ -27,7 +27,7 @@ c200_fn_wcl() {
 
 c200_fn_trimhist() {
     if [ $(( `c200_fn_wcl $c200_var_hfile` - $c200_var_hsize -1 )) -gt 0 ] ; then
-        sed -i "1,$s d" $c200_var_hfile
+        sed -i "1,$s d" $c200_var_hfile >/dev/null 2>&1
     fi
 }
 
@@ -37,7 +37,7 @@ c200_fn_record() {
     if [ -n "$1" ] ; then
         histno=$((`c200_fn_lasthist` + 1 ))
         if [ -f "$c200_var_hfile" ] ; then
-            if fgrep -v "$c200_var_tab$1$c200_var_tab" $c200_var_hfile /dev/null ; then
+            if fgrep -q "$c200_var_tab$1$c200_var_tab" $c200_var_hfile ; then
                 return
             fi
         fi
