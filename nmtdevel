@@ -1,0 +1,141 @@
+#!/bin/sh
+
+NMT100_ROOT=/usr/local/mips
+
+NMT200_ROOT=/usr/local/mips-4.3
+
+env_NMT100() {
+    host=mipsel-linux-uclibc
+    root=$NMT100_ROOT
+
+    prefix=$root/$host/usr
+    export "PATH=$root/sh:$root/bin:$PATH"
+    export LDFLAGS=-Wl,--dynamic-linker,/lib/ld-uClibc.so.0
+
+    #Set to grand parent location of plain 'gcc'
+    prefix=$root/$host/usr/
+
+    if [ ! -d $root/sh ] ; then
+        # Build stubs
+        if ! mkdir $root/sh ; then permissions ; fi
+        make_stub $root ld "$LDFLAGS"
+    fi
+
+    env_both
+}
+
+env_NMT200() {
+
+    host=mips-linux-gnu
+    root=$NMT200_ROOT
+
+    export "PATH=$root/sh:$root/bin:$PATH"
+    export CFLAGS=-EL
+    export CXXFLAGS=-EL
+    export LDFLAGS=-EL
+    export CPPFLAGS=-EL
+    export ASFLAGS=-EL
+    if [ ! -d $root/sh ] ; then
+        # Build stubs
+        if ! mkdir $root/sh ; then permissions ; fi
+        for prg in gcc g++ ld c++ as ; do
+            make_stub $root $prg "-EL"
+        done
+    fi
+
+    #Set to grand parent location of plain 'gcc'
+    prefix=$root/$host
+    env_both
+}
+
+permissions() {
+    cat <<HERE
+
+    *IMO* I allow user to have write access to the toolchain build area.
+    This is so that 'configure --prefix ... ; make install ' can install
+    to the toolchaing without root access. 
+    This safeguards against accidentally installing over you host system files.
+
+    Change permissions on these folders so that the script can continue.
+
+HERE
+    exit 1
+}
+
+make_stub() {
+    root=$1; shift
+    prg=$1 ; shift
+    f=$root/sh/$host-$prg
+
+    echo "exec $root/bin/$host-$prg $@ "'"$@"' > $f && chmod 555 $f
+}
+
+env_both() {
+    export CC=$host-gcc
+    export LD=$host-ld
+    export AS=$host-as
+    #export AR=$host-ar
+    export SIZE=$host-size
+    export OBJDUMP=$host-objdump
+    export OBJCOPY=$host-objcopy
+    export CXX=$host-g++
+}
+
+
+usage() {
+    cat <<HERE
+   
+    $0 [100|200] [configh|configure|make] args
+
+    configure expands to  configure --prefix=toolchaindir 
+
+    configh expands to  configure --host=.... --prefix=toolchaindir 
+
+HERE
+}
+
+set_build() {
+    rm -f BUILD_NMT[12]00 && touch BUILD_$nmtarch
+}
+
+check_build() {
+    if [ ! -f BUILD_$nmtarch ] ; then 
+        echo "Expected file BUILD_$nmtarch"
+        exit 1
+    fi
+}
+
+case "$1" in
+    *100) nmtarch=NMT100 ;;
+    *200) nmtarch=NMT200 ;;
+    *) usage ;;
+esac
+
+shift;
+
+env_$nmtarch
+
+cmd="$1" ; shift
+
+case "$cmd" in
+
+    configh)
+        echo ./configure --prefix=$prefix --host=$host "$@"
+        ./configure --prefix=$prefix --host=$host "$@" && set_build 
+        ;;
+
+    configure)
+        echo ./configure --prefix=$prefix "$@"
+        ./configure --prefix=$prefix "$@" && set_build
+        ;;
+
+    make)
+        echo make "$@"
+        check_build && make "$@"
+        ;;
+
+
+    *) echo $0 "configure|make|install"
+        ;;
+
+esac
