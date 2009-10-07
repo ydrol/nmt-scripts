@@ -18,7 +18,13 @@ env_NMT100() {
     if [ ! -d $root/sh ] ; then
         # Build stubs
         if ! mkdir $root/sh ; then permissions ; fi
-        make_stub $root ld "$LDFLAGS"
+        cat <<\HERE > $root/sh/$host-ld
+case "$*" in
+    *.o*) exec /usr/local/mips/bin/mipsel-linux-uclibc-gcc -Wl,--dynamic-linker,/lib/ld-uClibc.so.0 "$@" ;;
+    *) exec /usr/local/mips/bin/mipsel-linux-uclibc-ld "$@" ;;
+esac
+HERE
+        chmod 555 $root/sh/$host-ld
     fi
 
     env_both
