@@ -22,6 +22,10 @@ var ssTitleToRef = new Array(); //Map title to multiple jukebox ids.
 var ssId2Title = new Array(); // internal array - each title has an internal ss id
 var ssWord2Id = new Array();  // map a word to ss id
 
+var ss_search_stack_pos=0;
+var ss_search_stack_max=0;
+var ss_search_stack = new Array(""); // Stack of search strings 
+
 function supersearch_init(id2title) {
 
     // Build hash of title to application ids ssTitleToRef
@@ -72,18 +76,31 @@ var ss_grid_cols;
 var ss_result_rows;
 var ss_grid_prefix;
 var ss_results_prefix;
+var ss_expand_all=0;
 
 // Map a grid element o
 var ss_grid_matches;
 
-function supersearch_display(searchstring,grid_prefix,grid_rows,grid_cols,results_prefix,result_rows) {
+function supersearch_display(
+        searchstring,  // String to search for
+        grid_prefix,   // Prefix for html grid elements. 
+        grid_rows,     // # rows in grid
+        grid_cols,     // # cols in grid
+        results_prefix, // Prefix for HTML result elements.
+        result_rows,   // Number of result rows
+        expand_all     // If true then show as many words as possible in the grid
+        ) {
 
     // Set dimensions of grid and results
     ss_grid_cols = grid_cols;
     ss_grid_rows = grid_rows;
+
     ss_result_rows = result_rows;
     ss_grid_prefix = grid_prefix;
     ss_results_prefix = results_prefix;
+    ss_expand_all = expand_all;
+
+    show_string(searchstring);
 
     var matches = new Array();
 
@@ -104,11 +121,46 @@ function supersearch_display(searchstring,grid_prefix,grid_rows,grid_cols,result
         }
     }
 
+    // If there is room in the grid - expand some of the drill down options
+    
+    if (ss_expand_all) {
+        ss_expand_matches(matches,grid_rows,grid_cols);
+    }
 
     // Put the matches into the grid
     ss_display_matches(matches,grid_rows,grid_cols,searchstring);
 
     ss_display_results(results);
+}
+
+function ss_hash_len(matches) {
+    var i;
+    i=0;
+    for(var j in matches) if (matches[j] && matches.length > 0) i++;
+    return i;
+}
+function ss_expand_matches(matches,rows,cols) {
+
+    var new_words = new Array();
+
+    for(var w in matches) {
+        if (matches[w] && matches[w].length > 1 ) {
+            // Check if there is space for all of the entries in matches[w]
+            if (matches[w].length + ss_hash_len(matches) + new_words.length -1  < rows * cols ) {
+                // We can expand this entry.
+                for (var w2idx in matches[w]) {
+                    var w2 = matches[w][w2idx];
+                    new_words[new_words.length] = w2;
+                    // alert("adding "+w2+" new_words = "+new_words.length);
+                }
+                // remove the original word
+                matches[w] = undefined;
+            }
+        }
+    }
+    for (var i in new_words) {
+        addHash(matches,new_words[i],new_words[i]);
+    }
 }
 
 function ss_display_results(results) {
@@ -119,19 +171,18 @@ function ss_display_results(results) {
     for( var i in results ) {
         sorted_titles[j++] = ssId2Title[i];
     }
-    if (j > ss_result_rows) {
-        set_result(0,"Too many results");
-    } else {
-        sorted_titles.sort();
+    sorted_titles.sort();
 
-        // Clear the rest of the values
-        for( i = 0  ; i < ss_result_rows ; i++ ) {
-            if (sorted_titles[i] ) {
-                set_result(i,sorted_titles[i]);
-            } else {
-                set_result(i,"----------");
-            }
+    // Clear the rest of the values
+    for( i = 0  ; i < ss_result_rows ; i++ ) {
+        if (sorted_titles[i] ) {
+            show_result(i,sorted_titles[i]);
+        } else {
+            show_result(i,"----------");
         }
+    }
+    if (j > ss_result_rows) {
+        show_result(ss_result_rows-1,"** More results - add pagination **");
     }
 }
 
@@ -149,43 +200,69 @@ function ss_display_matches(matches,rows,cols,searchstring) {
     // update new values 
     var r = 0;
     var c = 0;
-    if (matches.length > rows * cols ) alert ("result overflow!");
+    if (ss_hash_len(matches) > rows * cols ) alert ("result overflow!");
     for( var w in sorted_words ) {
         var m = matches[sorted_words[w]];
 
-        //Swap the commented lines to see the matches
-        //var show = longest_substring(m,searchstring)+":"+searchstring+":"+m;
-        var show = longest_substring(m,searchstring);
-        set_grid(r,c,show);
-        updated[c+r*cols] = 1;
-        c++;
-        if (c >= cols) {
-            c = 0;
-            r++;
+        if (m && m.length > 0 ) {
+
+            //Swap the commented lines to see the matches
+            //var show = longest_substring(m,searchstring)+":"+searchstring+":"+m;
+            var show = longest_substring(m,searchstring);
+            show_grid(r,c,show);
+            updated[c+r*cols] = 1;
+            c++;
+            if (c >= cols) {
+                c = 0;
+                r++;
+            }
         }
     }
     // Clear the rest of the grid 
     for(var r = 0 ; r < ss_grid_rows ; r++ ) {
         for(var c = 0 ; c < ss_grid_cols ; c++ ) {
             if (!updated[c+r*cols]) {
-                set_grid(r,c,"-");
+                show_grid(r,c,"-");
             }
         }
     }
 }
 
-function set_result(i,value) {
+function show_result(i,value) {
     document.getElementById(ss_results_prefix+i).firstChild.nodeValue = value;
 }
 
-function set_grid(r,c,value) {
+function show_grid(r,c,value) {
     document.getElementById(ss_grid_prefix+r+"_"+c).firstChild.nodeValue = value;
+}
+function show_string(value) {
+    document.getElementById("ss_string").firstChild.nodeValue = value;
 }
 
 function ss(r,c) {
     var match = document.getElementById(ss_grid_prefix+r+"_"+c).firstChild.nodeValue;
-    supersearch_display(match,ss_grid_prefix,ss_grid_rows,ss_grid_cols,ss_results_prefix,ss_result_rows);
+    // Add the search to the stack
+    ss_search_stack[++ss_search_stack_pos] = match;
+    if (ss_search_stack_pos > ss_search_stack_max) {
+        ss_search_stack_max = ss_search_stack_pos;
+    }
+
+    supersearch_display(match,ss_grid_prefix,ss_grid_rows,ss_grid_cols,ss_results_prefix,ss_result_rows,ss_expand_all);
 }
+
+function ss_back() {
+    if (ss_search_stack_pos > 0 ) {
+        var match = ss_search_stack[--ss_search_stack_pos];
+        supersearch_display(match,ss_grid_prefix,ss_grid_rows,ss_grid_cols,ss_results_prefix,ss_result_rows,ss_expand_all);
+    }
+}
+function ss_forward() {
+    if (ss_search_stack_pos < ss_search_stack_max ) {
+        var match = ss_search_stack[++ss_search_stack_pos];
+        supersearch_display(match,ss_grid_prefix,ss_grid_rows,ss_grid_cols,ss_results_prefix,ss_result_rows,ss_expand_all);
+    }
+}
+
 
 function longest_substring(list,start) {
 
@@ -1258,87 +1335,121 @@ supersearch_init(id2title);
     </script>
 
 </head>
-<body onload="supersearch_display('','grid',6,7,'result',10)" >
+<body onload="supersearch_display('','grid',6,7,'result',15,0)" >
 
     <h1>NMT Supersearch</h1>
     
     <p>A demo of predictive searching of a fixed film title catalog. Coming soon to oversight.
     <p>NMT Skin makers feel free to add the necessary Gaya'isms :)
 
-    Hit <a href="?">Refresh</a> to restart</a>
-
-<center>
-    <table width="50%" border="1">
-        <tr>
-            <td><a href="javascript:ss(0,0)" id="grid0_0">.</a></td>
-            <td><a href="javascript:ss(0,1)" id="grid0_1">.</a></td>
-            <td><a href="javascript:ss(0,2)" id="grid0_2">.</a></td>
-            <td><a href="javascript:ss(0,3)" id="grid0_3">.</a></td>
-            <td><a href="javascript:ss(0,4)" id="grid0_4">.</a></td>
-            <td><a href="javascript:ss(0,5)" id="grid0_5">.</a></td>
-            <td><a href="javascript:ss(0,6)" id="grid0_6">.</a></td>
-        </tr>
-        <tr>
-            <td><a href="javascript:ss(1,0)" id="grid1_0">.</a></td>
-            <td><a href="javascript:ss(1,1)" id="grid1_1">.</a></td>
-            <td><a href="javascript:ss(1,2)" id="grid1_2">.</a></td>
-            <td><a href="javascript:ss(1,3)" id="grid1_3">.</a></td>
-            <td><a href="javascript:ss(1,4)" id="grid1_4">.</a></td>
-            <td><a href="javascript:ss(1,5)" id="grid1_5">.</a></td>
-            <td><a href="javascript:ss(1,6)" id="grid1_6">.</a></td>
-        </tr>
-        <tr>
-            <td><a href="javascript:ss(2,0)" id="grid2_0">.</a></td>
-            <td><a href="javascript:ss(2,1)" id="grid2_1">.</a></td>
-            <td><a href="javascript:ss(2,2)" id="grid2_2">.</a></td>
-            <td><a href="javascript:ss(2,3)" id="grid2_3">.</a></td>
-            <td><a href="javascript:ss(2,4)" id="grid2_4">.</a></td>
-            <td><a href="javascript:ss(2,5)" id="grid2_5">.</a></td>
-            <td><a href="javascript:ss(2,6)" id="grid2_6">.</a></td>
-        </tr>
-        <tr>
-            <td><a href="javascript:ss(3,0)" id="grid3_0">.</a></td>
-            <td><a href="javascript:ss(3,1)" id="grid3_1">.</a></td>
-            <td><a href="javascript:ss(3,2)" id="grid3_2">.</a></td>
-            <td><a href="javascript:ss(3,3)" id="grid3_3">.</a></td>
-            <td><a href="javascript:ss(3,4)" id="grid3_4">.</a></td>
-            <td><a href="javascript:ss(3,5)" id="grid3_5">.</a></td>
-            <td><a href="javascript:ss(3,6)" id="grid3_6">.</a></td>
-        </tr>
-        <tr>
-            <td><a href="javascript:ss(4,0)" id="grid4_0">.</a></td>
-            <td><a href="javascript:ss(4,1)" id="grid4_1">.</a></td>
-            <td><a href="javascript:ss(4,2)" id="grid4_2">.</a></td>
-            <td><a href="javascript:ss(4,3)" id="grid4_3">.</a></td>
-            <td><a href="javascript:ss(4,4)" id="grid4_4">.</a></td>
-            <td><a href="javascript:ss(4,5)" id="grid4_5">.</a></td>
-            <td><a href="javascript:ss(4,6)" id="grid4_6">.</a></td>
-        </tr>
-        <tr>
-            <td><a href="javascript:ss(5,0)" id="grid5_0">.</a></td>
-            <td><a href="javascript:ss(5,1)" id="grid5_1">.</a></td>
-            <td><a href="javascript:ss(5,2)" id="grid5_2">.</a></td>
-            <td><a href="javascript:ss(5,3)" id="grid5_3">.</a></td>
-            <td><a href="javascript:ss(5,4)" id="grid5_4">.</a></td>
-            <td><a href="javascript:ss(5,5)" id="grid5_5">.</a></td>
-            <td><a href="javascript:ss(5,6)" id="grid5_6">.</a></td>
-        </tr>
-    </table>
+    Hit <a href="?">Refresh</a>
 
     <hr>
 
-    <table width="50%">
-        <tr><td id="result0">.</td></tr>
-        <tr><td id="result1">.</td></tr>
-        <tr><td id="result2">.</td></tr>
-        <tr><td id="result3">.</td></tr>
-        <tr><td id="result4">.</td></tr>
-        <tr><td id="result5">.</td></tr>
-        <tr><td id="result6">.</td></tr>
-        <tr><td id="result7">.</td></tr>
-        <tr><td id="result8">.</td></tr>
-        <tr><td id="result9">.</td></tr>
-    </table>
+<table width="100%">
+    <tr valign="top">
+        <td width=30%>
+
+            <p>Search string 
+            <table>
+                <tr>
+                    <td><a href="javascript:ss_back()">&lt;&lt;</a></td>
+                    <td>[<font id="ss_string">.</font>]</td>
+                    <td><a href="javascript:ss_forward()">&gt;&gt;</a></td>
+                </tr>
+            </table>
+    
+            <table width="50%" border="1">
+                <tr>
+                    <td><a href="javascript:ss(0,0)" id="grid0_0">.</a></td>
+                    <td><a href="javascript:ss(0,1)" id="grid0_1">.</a></td>
+                    <td><a href="javascript:ss(0,2)" id="grid0_2">.</a></td>
+                        <td><a href="javascript:ss(0,3)" id="grid0_3">.</a></td>
+                    <td><a href="javascript:ss(0,4)" id="grid0_4">.</a></td>
+                    <td><a href="javascript:ss(0,5)" id="grid0_5">.</a></td>
+                    <td><a href="javascript:ss(0,6)" id="grid0_6">.</a></td>
+                </tr>
+                    <tr>
+                    <td><a href="javascript:ss(1,0)" id="grid1_0">.</a></td>
+                    <td><a href="javascript:ss(1,1)" id="grid1_1">.</a></td>
+                    <td><a href="javascript:ss(1,2)" id="grid1_2">.</a></td>
+                    <td><a href="javascript:ss(1,3)" id="grid1_3">.</a></td>
+                    <td><a href="javascript:ss(1,4)" id="grid1_4">.</a></td>
+                    <td><a href="javascript:ss(1,5)" id="grid1_5">.</a></td>
+                    <td><a href="javascript:ss(1,6)" id="grid1_6">.</a></td>
+                </tr>
+                <tr>
+                    <td><a href="javascript:ss(2,0)" id="grid2_0">.</a></td>
+                    <td><a href="javascript:ss(2,1)" id="grid2_1">.</a></td>
+                    <td><a href="javascript:ss(2,2)" id="grid2_2">.</a></td>
+                    <td><a href="javascript:ss(2,3)" id="grid2_3">.</a></td>
+                    <td><a href="javascript:ss(2,4)" id="grid2_4">.</a></td>
+                    <td><a href="javascript:ss(2,5)" id="grid2_5">.</a></td>
+                    <td><a href="javascript:ss(2,6)" id="grid2_6">.</a></td>
+                </tr>
+                <tr>
+                    <td><a href="javascript:ss(3,0)" id="grid3_0">.</a></td>
+                    <td><a href="javascript:ss(3,1)" id="grid3_1">.</a></td>
+                    <td><a href="javascript:ss(3,2)" id="grid3_2">.</a></td>
+                    <td><a href="javascript:ss(3,3)" id="grid3_3">.</a></td>
+                    <td><a href="javascript:ss(3,4)" id="grid3_4">.</a></td>
+                    <td><a href="javascript:ss(3,5)" id="grid3_5">.</a></td>
+                    <td><a href="javascript:ss(3,6)" id="grid3_6">.</a></td>
+                </tr>
+                <tr>
+                    <td><a href="javascript:ss(4,0)" id="grid4_0">.</a></td>
+                    <td><a href="javascript:ss(4,1)" id="grid4_1">.</a></td>
+                    <td><a href="javascript:ss(4,2)" id="grid4_2">.</a></td>
+                    <td><a href="javascript:ss(4,3)" id="grid4_3">.</a></td>
+                    <td><a href="javascript:ss(4,4)" id="grid4_4">.</a></td>
+                    <td><a href="javascript:ss(4,5)" id="grid4_5">.</a></td>
+                    <td><a href="javascript:ss(4,6)" id="grid4_6">.</a></td>
+                </tr>
+                <tr>
+                    <td><a href="javascript:ss(5,0)" id="grid5_0">.</a></td>
+                    <td><a href="javascript:ss(5,1)" id="grid5_1">.</a></td>
+                    <td><a href="javascript:ss(5,2)" id="grid5_2">.</a></td>
+                    <td><a href="javascript:ss(5,3)" id="grid5_3">.</a></td>
+                    <td><a href="javascript:ss(5,4)" id="grid5_4">.</a></td>
+                    <td><a href="javascript:ss(5,5)" id="grid5_5">.</a></td>
+                    <td><a href="javascript:ss(5,6)" id="grid5_6">.</a></td>
+                </tr>
+            </table>
+
+        </td>
+        <td>
+
+            <p>Matches
+
+
+            <table width="50%">
+                <tr><td id="result0">.</td></tr>
+                <tr><td id="result1">.</td></tr>
+                <tr><td id="result2">.</td></tr>
+                <tr><td id="result3">.</td></tr>
+                <tr><td id="result4">.</td></tr>
+                <tr><td id="result5">.</td></tr>
+                <tr><td id="result6">.</td></tr>
+                <tr><td id="result7">.</td></tr>
+                <tr><td id="result8">.</td></tr>
+                <tr><td id="result9">.</td></tr>
+                <tr><td id="result10">.</td></tr>
+                <tr><td id="result11">.</td></tr>
+                <tr><td id="result12">.</td></tr>
+                <tr><td id="result13">.</td></tr>
+                <tr><td id="result14">.</td></tr>
+                <tr><td id="result15">.</td></tr>
+                <!--
+                <tr><td id="result16">.</td></tr>
+                <tr><td id="result17">.</td></tr>
+                <tr><td id="result18">.</td></tr>
+                <tr><td id="result19">.</td></tr>
+                -->
+            </table>
+
+        </td>
+    </tr>
+</table>
 
     <a href="http://www.nytimes.com/ref/movies/1000best.html" target="_blank">Titles taken from here</a>
 </center>
