@@ -79,6 +79,12 @@ while true ; do
     c200_var_lastline="$c200_var_line"
 
     read c200_var_line 
+    
+    case "$c200_var_line" in
+        *!!*) c200_var_line=`echo "$c200_var_line" | sed "s/!!/$c200_var_lastline/g"`
+            echo "[ $c200_var_line ]"
+            ;;
+    esac
     case "$c200_var_line" in
     exit|q)
         break ;;
