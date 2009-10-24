@@ -16,7 +16,7 @@ create_packages() {
     name="$1" ; shift
 
     #Create the zip package for direct download by the csi installer.
-    zip -x*/.svn/* -x*/*~ -r packages/$dest.zip  "$@" 
+    zip -x*/.svn/* -x*/*~ -r packages/$name.zip  "$@" 
 
     #Create the csi inner tar file
     tar --exclude=.svn --exclude=*~ -c -f packages/$name.tar "$@"
@@ -57,7 +57,7 @@ update_csi_xml_repository() {
 }
 
 /<DownloadURL>/ && in_version {
-    print "     <DownloadURL>http://nmt-mini-installer.googlecode.com/svn/downloads/'"$1"'/csi_'"$1-$2"'.zip</DownloadURL>";
+    print "     <DownloadURL>http://'"$1"'.googlecode.com/files/csi_'"$1-$2"'.zip</DownloadURL>";
     next;
 }
 /<InstallScript>/ && in_version {
