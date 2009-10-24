@@ -1,0 +1,1333 @@
+<html>
+<head>
+    <title>Super Search</title>
+<!--
+  THE CODE UP TO THE NEXT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  SHOULD BE IN A SEPERATE JS SCRIPT IV'E EMBEDED IT FOR EASY DEMO
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    <script type="text/javascript" src="supersearch.js" ></script>
+-->
+
+<script type="text/javascript">
+
+var ssTitleToRef = new Array(); //Map title to multiple jukebox ids.
+var ssId2Title = new Array(); // internal array - each title has an internal ss id
+var ssWord2Id = new Array();  // map a word to ss id
+
+function supersearch_init(id2title) {
+
+    // Build hash of title to application ids ssTitleToRef
+    // Build array of internal title ids ssId2Title 
+    var count = 0;
+    var ssid = 0;
+    for (var i in id2title ) {
+        //alert('title='+i);
+        var t = id2title[i].toLowerCase();
+        addHash(ssTitleToRef,t,i);
+    }
+    for( var t in ssTitleToRef ) {
+        ssId2Title[++count] = t;
+        // alert("title["+t+"]="+ssTitleToRef[t]);
+    }
+    // ------------------
+    // ------------------
+//    for (var i in ssId2Title ) {
+//        alert("index "+ssId2Title[i]);
+//        for(var j in ssTitleToRef[ssId2Title[i]] ) {
+//            alert("value "+ssTitleToRef[ssId2Title[i]][j]);
+//        }
+//    }
+    // ------------------
+    // build word list to ssId2Title
+    for( var i in ssId2Title ) {
+        var words = ssId2Title[i].split(" ");
+        for( var w in words ) {
+            var word = words[w];
+            addHash(ssWord2Id,word,i);
+        }
+    }
+    // for( var w in ssWord2Id ) { alert("word["+w+"]="+ssWord2Id[w]); }
+
+}
+
+function addHash(arr,index,value) {
+    var arr2 = arr[index];
+    if (!arr2) {
+        arr2 = arr[index] = new Array();
+    }
+    arr2[arr2.length] = value;
+}
+
+
+var ss_grid_rows;
+var ss_grid_cols;
+var ss_result_rows;
+var ss_grid_prefix;
+var ss_results_prefix;
+
+// Map a grid element o
+var ss_grid_matches;
+
+function supersearch_display(searchstring,grid_prefix,grid_rows,grid_cols,results_prefix,result_rows) {
+
+    // Set dimensions of grid and results
+    ss_grid_cols = grid_cols;
+    ss_grid_rows = grid_rows;
+    ss_result_rows = result_rows;
+    ss_grid_prefix = grid_prefix;
+    ss_results_prefix = results_prefix;
+
+    var matches = new Array();
+
+    var results = new Array();
+
+    var lenstr = searchstring.length;
+
+    // Add all of the words that match the search string - index by search string + next letter.
+    for (var w in ssWord2Id ) {
+        if (w.substr(0,lenstr) == searchstring ) {
+            addHash(matches,w.substr(0,lenstr+1),w);
+            
+            //also store ids of all titles that have word w
+            for(var idx in ssWord2Id[w]) {
+                var i = ssWord2Id[w][idx];
+                results[i] = 1;
+            }
+        }
+    }
+
+
+    // Put the matches into the grid
+    ss_display_matches(matches,grid_rows,grid_cols,searchstring);
+
+    ss_display_results(results);
+}
+
+function ss_display_results(results) {
+    
+    var sorted_titles = new Array();
+    var j = 0;
+
+    for( var i in results ) {
+        sorted_titles[j++] = ssId2Title[i];
+    }
+    if (j > ss_result_rows) {
+        set_result(0,"Too many results");
+    } else {
+        sorted_titles.sort();
+
+        // Clear the rest of the values
+        for( i = 0  ; i < ss_result_rows ; i++ ) {
+            if (sorted_titles[i] ) {
+                set_result(i,sorted_titles[i]);
+            } else {
+                set_result(i,"----------");
+            }
+        }
+    }
+}
+
+function ss_display_matches(matches,rows,cols,searchstring) {
+
+    var updated = new Array();
+
+    var sorted_words = new Array();
+    var i=0;
+    for( var w in matches ) {
+        sorted_words[i++] = w;
+    }
+    sorted_words.sort();
+
+    // update new values 
+    var r = 0;
+    var c = 0;
+    if (matches.length > rows * cols ) alert ("result overflow!");
+    for( var w in sorted_words ) {
+        var m = matches[sorted_words[w]];
+
+        //Swap the commented lines to see the matches
+        //var show = longest_substring(m,searchstring)+":"+searchstring+":"+m;
+        var show = longest_substring(m,searchstring);
+        set_grid(r,c,show);
+        updated[c+r*cols] = 1;
+        c++;
+        if (c >= cols) {
+            c = 0;
+            r++;
+        }
+    }
+    // Clear the rest of the grid 
+    for(var r = 0 ; r < ss_grid_rows ; r++ ) {
+        for(var c = 0 ; c < ss_grid_cols ; c++ ) {
+            if (!updated[c+r*cols]) {
+                set_grid(r,c,"-");
+            }
+        }
+    }
+}
+
+function set_result(i,value) {
+    document.getElementById(ss_results_prefix+i).firstChild.nodeValue = value;
+}
+
+function set_grid(r,c,value) {
+    document.getElementById(ss_grid_prefix+r+"_"+c).firstChild.nodeValue = value;
+}
+
+function ss(r,c) {
+    var match = document.getElementById(ss_grid_prefix+r+"_"+c).firstChild.nodeValue;
+    supersearch_display(match,ss_grid_prefix,ss_grid_rows,ss_grid_cols,ss_results_prefix,ss_result_rows);
+}
+
+function longest_substring(list,start) {
+
+    var best = start;
+    var minlen = -1;
+
+    // Find shortest string
+    for(var i in list) {
+        var len = list[i].length;
+
+        if (minlen == -1 || len < minlen ) {
+            minlen = len;
+        }
+    }
+
+    //if the shortest string is the start string then finish
+    if (minlen == start.length) return start;
+
+
+    for(len = start.length + 1 ; len <= minlen ; len ++ ) {
+        var next = best;
+        for(var i in list) {
+            var s = list[i];
+            if (best == next ) {
+                // first time round at this length pick up the first string
+                next = s.substr(0,len);
+
+            } else if (s.substr(0,len) != next ) {
+                return best;
+            } 
+        }
+        // Matched against all substrings 
+        best = next;
+    }
+    return best;
+}
+
+</script>
+
+<!--
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  THATS THE END OF THE STATIC SCRIPT. THE REST SHOULD BE GENERATED 
+  BY THE JUKEBOX.
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-->
+
+
+    <script type="text/javascript">
+
+var id2title = new Array();
+
+id2title[1]="Bella";
+id2title[2]="Lust, Caution";
+id2title[3]="Gone Baby Gone";
+id2title[4]="American Gangster";
+id2title[5]="Across the Universe";
+id2title[6]="Into the Wild";
+id2title[7]="Michael Clayton";
+id2title[8]="Before the Devil Knows You";
+id2title[9]="In the Valley of Elah";
+id2title[10]="No Country for Old Men";
+id2title[11]="A Nous la Liberte";
+id2title[12]="About Schmidt";
+id2title[13]="Absence of Malice";
+id2title[14]="Adam's Rib";
+id2title[15]="Adaptation";
+id2title[16]="The Adjuster";
+id2title[17]="The Adventures of Robin Hood";
+id2title[18]="Affliction";
+id2title[19]="The African Queen";
+id2title[20]="L'Age d'Or";
+id2title[21]="Aguirre, the Wrath of God";
+id2title[22]="A.I.";
+id2title[23]="Airplane!";
+id2title[24]="Aladdin";
+id2title[25]="Alexander Nevsky";
+id2title[26]="Alice Doesn't Live Here Anymore";
+id2title[27]="Alice's Restaurant";
+id2title[28]="Aliens";
+id2title[29]="All About Eve";
+id2title[30]="All About My Mother";
+id2title[31]="All Quiet on the Western Front";
+id2title[32]="All That Heaven Allows";
+id2title[33]="All the King's Men";
+id2title[34]="All the President's Men";
+id2title[35]="Amadeus";
+id2title[36]="Amarcord";
+id2title[37]="Amélie";
+id2title[38]="America, America";
+id2title[39]="The American Friend";
+id2title[40]="American Graffiti";
+id2title[41]="An American in Paris";
+id2title[42]="The Americanization of Emily";
+id2title[43]="American Movie";
+id2title[44]="Amores Perros";
+id2title[45]="Anastasia";
+id2title[46]="Anatomy of a Murder";
+id2title[47]="The Angry Silence";
+id2title[48]="Anna and the King of Siam";
+id2title[49]="Anna Christie";
+id2title[50]="Annie Hall";
+id2title[51]="The Apartment";
+id2title[52]="Apocalypse Now";
+id2title[53]="Apollo 13";
+id2title[54]="The Apostle";
+id2title[55]="L'Argent";
+id2title[56]="Ashes and Diamonds";
+id2title[57]="Ashes and Diamonds";
+id2title[58]="The Asphalt Jungle";
+id2title[59]="L'Atalante";
+id2title[60]="Atlantic City";
+id2title[61]="Au Revoir Les Enfants";
+id2title[62]="L'Avventura";
+id2title[63]="The Awful Truth";
+id2title[64]="Babette's Feast";
+id2title[65]="Baby Doll";
+id2title[66]="Back to the Future";
+id2title[67]="The Bad and the Beautiful";
+id2title[68]="Bad Day at Black Rock";
+id2title[69]="Badlands";
+id2title[70]="The Baker's Wife";
+id2title[71]="Ball of Fire";
+id2title[72]="The Ballad of Cable Hogue";
+id2title[73]="Bambi";
+id2title[74]="The Band Wagon";
+id2title[75]="Bang the Drum Slowly";
+id2title[76]="The Bank Dick";
+id2title[77]="Barfly";
+id2title[78]="Barry Lyndon";
+id2title[79]="Barton Fink";
+id2title[80]="The Battle of Algiers";
+id2title[81]="Le Beau Mariage";
+id2title[82]="Beautiful People";
+id2title[83]="Beauty and the Beast";
+id2title[84]="Beauty and the Beast";
+id2title[85]="Bed and Board";
+id2title[86]="Beetlejuice";
+id2title[87]="Before Night Falls";
+id2title[88]="Before the Rain";
+id2title[89]="Being John Malkovich";
+id2title[90]="Being There";
+id2title[91]="Belle de Jour";
+id2title[92]="Ben-Hur";
+id2title[93]="Berlin Alexanderplatz";
+id2title[94]="The Best Years of Our Lives";
+id2title[95]="Beverly Hills Cop";
+id2title[96]="The Bicycle Thief";
+id2title[97]="The Big Chill";
+id2title[98]="The Big Clock";
+id2title[99]="The Big Deal on Madonna Street";
+id2title[100]="The Big Heat";
+id2title[101]="Big Night";
+id2title[102]="The Big Red One";
+id2title[103]="The Big Sky";
+id2title[104]="The Big Sleep";
+id2title[105]="Billy Liar";
+id2title[106]="Biloxi Blues";
+id2title[107]="The Birds";
+id2title[108]="Birdy";
+id2title[109]="Black Narcissus";
+id2title[110]="Black Orpheus";
+id2title[111]="Black Robe";
+id2title[112]="Blazing Saddles";
+id2title[113]="Bloody Sunday";
+id2title[114]="Blow-Up";
+id2title[115]="Blue Collar";
+id2title[116]="Blue Velvet";
+id2title[117]="Bob & Carol & Ted & Alice";
+id2title[118]="Bob le Flambeur";
+id2title[119]="Body Heat";
+id2title[120]="Bonnie and Clyde";
+id2title[121]="Boogie Nights";
+id2title[122]="Born on the Fourth of July";
+id2title[123]="Born Yesterday";
+id2title[124]="Le Boucher";
+id2title[125]="Bound for Glory";
+id2title[126]="Boys Don't Cry";
+id2title[127]="Boyz N the Hood";
+id2title[128]="Brazil";
+id2title[129]="Bread, Love and Dreams";
+id2title[130]="Breaker Morant";
+id2title[131]="The Breakfast Club";
+id2title[132]="Breaking Away";
+id2title[133]="Breaking the Waves";
+id2title[134]="Breathless";
+id2title[135]="The Bride Wore Black";
+id2title[136]="The Bridge on the River Kwai";
+id2title[137]="Brief Encounter";
+id2title[138]="A Brief History of Time";
+id2title[139]="Bringing Up Baby";
+id2title[140]="Broadcast News";
+id2title[141]="Brother's Keeper";
+id2title[142]="The Buddy Holly Story";
+id2title[143]="Bull Durham";
+id2title[144]="Bullitt";
+id2title[145]="Bus Stop";
+id2title[146]="Butch Cassidy and the Sundance Kid";
+id2title[147]="The Butcher Boy";
+id2title[148]="Bye Bye Brasil";
+id2title[149]="The Earrings of Madame De . . .";
+id2title[150]="Cabaret";
+id2title[151]="The Caine Mutiny";
+id2title[152]="California Suite";
+id2title[153]="Calle 54";
+id2title[154]="Camelot";
+id2title[155]="Camille";
+id2title[156]="Captains Courageous";
+id2title[157]="Carmen Jones";
+id2title[158]="Carnal Knowledge";
+id2title[159]="Casablanca";
+id2title[160]="Cat on a Hot Tin Roof";
+id2title[161]="Catch-22";
+id2title[162]="Cavalcade";
+id2title[163]="The Celebration";
+id2title[164]="La Cérémonie";
+id2title[165]="Chan Is Missing";
+id2title[166]="Chariots of Fire";
+id2title[167]="Charley Varrick";
+id2title[168]="Chicago";
+id2title[169]="Chicken Run";
+id2title[170]="La Chienne";
+id2title[171]="Chinatown";
+id2title[172]="Chloë in the Afternoon";
+id2title[173]="Chocolat";
+id2title[174]="The Cider House Rules";
+id2title[175]="The Citadel";
+id2title[176]="Citizen Kane";
+id2title[177]="Claire's Knee";
+id2title[178]="The Clockmaker";
+id2title[179]="A Clockwork Orange";
+id2title[180]="Close Encounters of the Third Kind";
+id2title[181]="Close-Up";
+id2title[182]="Clueless";
+id2title[183]="Coal Miner's Daughter";
+id2title[184]="The Color of Money";
+id2title[185]="Come Back, Little Sheba";
+id2title[186]="Coming Home";
+id2title[187]="The Conformist";
+id2title[188]="The Conquest of Everest";
+id2title[189]="Contempt";
+id2title[190]="The Conversation";
+id2title[191]="Cool Hand Luke";
+id2title[192]="The Count of Monte Cristo";
+id2title[193]="The Country Girl";
+id2title[194]="The Cousins";
+id2title[195]="The Cranes Are Flying";
+id2title[196]="Cries and Whispers";
+id2title[197]="Crossfire";
+id2title[198]="Crumb";
+id2title[199]="Cry, the Beloved Country";
+id2title[200]="The Crying Game";
+id2title[201]="Damn Yankees";
+id2title[202]="The Damned";
+id2title[203]="Dance with a Stranger";
+id2title[204]="Dangerous Liaisons";
+id2title[205]="Daniel";
+id2title[206]="Danton";
+id2title[207]="Dark Eyes";
+id2title[208]="Dark Victory";
+id2title[209]="Darling";
+id2title[210]="David Copperfield";
+id2title[211]="David Holtzman's Diary";
+id2title[212]="Dawn of the Dead";
+id2title[213]="Day for Night";
+id2title[214]="The Day of the Jackal";
+id2title[215]="The Day the Earth Stood Still";
+id2title[216]="Days of Heaven";
+id2title[217]="Days of Wine and Roses";
+id2title[218]="The Dead";
+id2title[219]="Dead Calm";
+id2title[220]="Dead End";
+id2title[221]="Dead Man Walking";
+id2title[222]="Dead of Night";
+id2title[223]="Dead Ringers";
+id2title[224]="Death in Venice";
+id2title[225]="Death of a Salesman";
+id2title[226]="The Decalogue";
+id2title[227]="Deep End";
+id2title[228]="The Deer Hunter";
+id2title[229]="The Defiant Ones";
+id2title[230]="Deliverance";
+id2title[231]="Desperately Seeking Susan";
+id2title[232]="Destry Rides Again";
+id2title[233]="Diabolique";
+id2title[234]="Dial M for Murder";
+id2title[235]="Diary of a Chambermaid";
+id2title[236]="Diary of a Country Priest";
+id2title[237]="Die Hard";
+id2title[238]="Diner";
+id2title[239]="Dinner at Eight";
+id2title[240]="The Dirty Dozen";
+id2title[241]="Dirty Harry";
+id2title[242]="Dirty Rotten Scoundrels";
+id2title[243]="The Discreet Charm of the Bourgeoisie";
+id2title[244]="Disraeli";
+id2title[245]="Distant Thunder";
+id2title[246]="Diva";
+id2title[247]="Divorce-Italian Style";
+id2title[248]="Do the Right Thing";
+id2title[249]="Dr. Jekyll and Mr. Hyde";
+id2title[250]="Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb";
+id2title[251]="Doctor Zhivago";
+id2title[252]="Dodsworth";
+id2title[253]="La Dolce Vita";
+id2title[254]="Donnie Brasco";
+id2title[255]="Don't Look Back";
+id2title[256]="Double Indemnity";
+id2title[257]="Down by Law";
+id2title[258]="Dracula";
+id2title[259]="The Dreamlife of Angels";
+id2title[260]="Dressed to Kill";
+id2title[261]="The Dresser";
+id2title[262]="Driving Miss Daisy";
+id2title[263]="Drowning by Numbers";
+id2title[264]="Drugstore Cowboy";
+id2title[265]="Duck Soup";
+id2title[266]="The Duellists";
+id2title[267]="Dumbo";
+id2title[268]="The Earrings of Madame De ";
+id2title[269]="East of Eden";
+id2title[270]="Easy Living";
+id2title[271]="Eat Drink Man Woman";
+id2title[272]="Effi Briest";
+id2title[273]="8 1/2";
+id2title[274]="Eight Men Out";
+id2title[275]="The Elephant Man";
+id2title[276]="Elmer Gantry";
+id2title[277]="Empire of the Sun";
+id2title[278]="Enemies, A Love Story";
+id2title[279]="Les Enfants du Paradis";
+id2title[280]="The English Patient";
+id2title[281]="The Entertainer";
+id2title[282]="Entre Nous";
+id2title[283]="E.T. the Extra-Terrestrial";
+id2title[284]="Europa, Europa";
+id2title[285]="Every Man for Himself";
+id2title[286]="The Exorcist";
+id2title[287]="The Exterminating Angel";
+id2title[288]="A Face in the Crowd";
+id2title[289]="Face to Face";
+id2title[290]="Faces";
+id2title[291]="The Family Game";
+id2title[292]="Fanny & Alexander";
+id2title[293]="Fantasia";
+id2title[294]="Farewell, My Concubine";
+id2title[295]="Far from Heaven";
+id2title[296]="Fargo";
+id2title[297]="Fast, Cheap & Out of Control";
+id2title[298]="Fast Runner";
+id2title[299]="Fat City";
+id2title[300]="Fatal Attraction";
+id2title[301]="Father of the Bride";
+id2title[302]="Fellini Satyricon";
+id2title[303]="La Femme Infidèle";
+id2title[304]="La Femme Nikita";
+id2title[305]="The Fisher King";
+id2title[306]="Fist in His Pocket";
+id2title[307]="Fitzcarraldo";
+id2title[308]="Five Easy Pieces";
+id2title[309]="The Flamingo Kid";
+id2title[310]="The Fly";
+id2title[311]="The Flamingo Kid";
+id2title[312]="Force of Evil";
+id2title[313]="For Whom the Bell Tolls";
+id2title[314]="Forbidden Games";
+id2title[315]="A Foreign Affair";
+id2title[316]="The Fortune Cookie";
+id2title[317]="The 400 Blows";
+id2title[318]="Frankenstein";
+id2title[319]="The French Connection";
+id2title[320]="Frenzy";
+id2title[321]="Friendly Persuasion";
+id2title[322]="From Here to Eternity";
+id2title[323]="The Fugitive";
+id2title[324]="Full Metal Jacket";
+id2title[325]="The Full Monty";
+id2title[326]="Funny Face";
+id2title[327]="Funny Girl";
+id2title[328]="Fury";
+id2title[329]="Gallipoli";
+id2title[330]="Gandhi";
+id2title[331]="Gangs of New York";
+id2title[332]="The Garden of the Finzi-Continis";
+id2title[333]="Gas Food Lodging";
+id2title[334]="Gaslight";
+id2title[335]="Gate of Hell";
+id2title[336]="A Geisha";
+id2title[337]="The General";
+id2title[338]="General Della Rovere";
+id2title[339]="Genevieve";
+id2title[340]="Gentlemen Prefer Blondes";
+id2title[341]="Georgy Girl";
+id2title[342]="Get Carter";
+id2title[343]="Get Out Your Handkerchiefs";
+id2title[344]="Ghost World";
+id2title[345]="Giant";
+id2title[346]="Gigi";
+id2title[347]="Gimme Shelter";
+id2title[348]="The Girl Can't Help It";
+id2title[349]="Girl with a Suitcase";
+id2title[350]="The Gleaners and I";
+id2title[351]="The Goalie's Anxiety at the Penalty Kick";
+id2title[352]="The Go-Between";
+id2title[353]="The Godfather";
+id2title[354]="The Godfather Part II";
+id2title[355]="Going My Way";
+id2title[356]="Goldfinger";
+id2title[357]="Gone With the Wind";
+id2title[358]="The Good, the Bad and the Ugly";
+id2title[359]="The Good Earth";
+id2title[360]="Goodbye, Mr. Chips";
+id2title[361]="GoodFellas";
+id2title[362]="Gosford Park";
+id2title[363]="The Graduate";
+id2title[364]="Grand Hotel";
+id2title[365]="Grand Illusion";
+id2title[366]="The Grapes of Wrath";
+id2title[367]="The Great Dictator";
+id2title[368]="Great Expectations";
+id2title[369]="The Great Man";
+id2title[370]="The Great McGinty";
+id2title[371]="The Greatest Show on Earth";
+id2title[372]="Green for Danger";
+id2title[373]="Gregory's Girl";
+id2title[374]="The Grifters";
+id2title[375]="Groundhog Day";
+id2title[376]="The Gunfighter";
+id2title[377]="Gunga Din";
+id2title[378]="Hail the Conquering Hero";
+id2title[379]="Hair";
+id2title[380]="Hamlet";
+id2title[381]="Hamlet";
+id2title[382]="Handle With Care";
+id2title[383]="Hannah and Her Sisters";
+id2title[384]="Happiness";
+id2title[385]="A Hard Day's Night";
+id2title[386]="Harlan County, USA";
+id2title[387]="Harry and Tonto";
+id2title[388]="A Hatful of Rain";
+id2title[389]="The Heartbreak Kid";
+id2title[390]="Heartland";
+id2title[391]="Hearts of Darkness: A Filmmaker's Apocalypse";
+id2title[392]="Heat and Dust";
+id2title[393]="Heathers";
+id2title[394]="Heavy Traffic";
+id2title[395]="Heimat";
+id2title[396]="The Heiress";
+id2title[397]="Henry V";
+id2title[398]="Henry V";
+id2title[399]="Henry Fool";
+id2title[400]="Here Comes Mr. Jordan";
+id2title[401]="High and Low";
+id2title[402]="The High and the Mighty";
+id2title[403]="High Art";
+id2title[404]="High Hopes";
+id2title[405]="High Noon";
+id2title[406]="High Sierra";
+id2title[407]="The Hill";
+id2title[408]="Hiroshima Mon Amour";
+id2title[409]="His Girl Friday";
+id2title[410]="The Homecoming";
+id2title[411]="Hoop Dreams";
+id2title[412]="Hope and Glory";
+id2title[413]="Hotel Terminus: Klaus Barbie et son Temps";
+id2title[414]="The Hours";
+id2title[415]="Household Saints";
+id2title[416]="House of Games";
+id2title[417]="How Green Was My Valley";
+id2title[418]="How to Marry a Millionaire";
+id2title[419]="Howards End";
+id2title[420]="Hud";
+id2title[421]="Ken Burns' America: Huey Long";
+id2title[422]="Husbands and Wives";
+id2title[423]="The Hustler";
+id2title[424]="I Know Where I'm Going!";
+id2title[425]="I Remember Mama";
+id2title[426]="I Want to Live!";
+id2title[427]="If...";
+id2title[428]="Ikiru";
+id2title[429]="I'm All Right Jack";
+id2title[430]="Imitation of Life";
+id2title[431]="In Cold Blood";
+id2title[432]="In the Bedroom";
+id2title[433]="In the Heat of the Night";
+id2title[434]="The Informer";
+id2title[435]="Inherit the Wind";
+id2title[436]="The Insider";
+id2title[437]="Internal Affairs";
+id2title[438]="The Ipcress File";
+id2title[439]="It Happened One Night";
+id2title[440]="It's a Gift";
+id2title[441]="It's a Wonderful Life";
+id2title[442]="Jailhouse Rock";
+id2title[443]="Jaws";
+id2title[444]="The Jazz Singer";
+id2title[445]="Jean de Florette";
+id2title[446]="Jerry Maguire";
+id2title[447]="Johnny Guitar";
+id2title[448]="The Judge and the Assassin";
+id2title[449]="Judgment at Nuremberg";
+id2title[450]="Ju Dou";
+id2title[451]="Jules and Jim";
+id2title[452]="Juliet of the Spirits";
+id2title[453]="Junior Bonner";
+id2title[454]="Kagemusha";
+id2title[455]="The Killers";
+id2title[456]="The Killing Fields";
+id2title[457]="Kind Hearts and Coronets";
+id2title[458]="The King and I";
+id2title[459]="King Kong";
+id2title[460]="King Lear";
+id2title[461]="The King of Comedy";
+id2title[462]="The King of Marvin Gardens";
+id2title[463]="Kiss of the Spider Woman";
+id2title[464]="Klute";
+id2title[465]="Knife in the Water";
+id2title[466]="Kramer vs. Kramer";
+id2title[467]="L.A. Confidential";
+id2title[468]="Lacombe Lucien";
+id2title[469]="The Lady Eve";
+id2title[470]="The Lady Vanishes";
+id2title[471]="Ladybird, Ladybird";
+id2title[472]="Lamerica";
+id2title[473]="The Last American Hero";
+id2title[474]="The Last Emperor";
+id2title[475]="The Last Metro";
+id2title[476]="The Last Picture Show";
+id2title[477]="The Last Seduction";
+id2title[478]="Last Tango in Paris";
+id2title[479]="The Last Temptation of Christ";
+id2title[480]="The Last Waltz";
+id2title[481]="Laura";
+id2title[482]="The Lavender Hill Mob";
+id2title[483]="Lawrence of Arabia";
+id2title[484]="A League of Their Own";
+id2title[485]="Leaving Las Vegas";
+id2title[486]="The Leopard";
+id2title[487]="The Letter";
+id2title[488]="A Letter to Three Wives";
+id2title[489]="Les Liaisons Dangereuses 1960";
+id2title[490]="The Life and Death of Colonel Blimp";
+id2title[491]="Life Is Sweet";
+id2title[492]="The Life of Emile Zola";
+id2title[493]="Life With Father";
+id2title[494]="Like Water for Chocolate";
+id2title[495]="Lili";
+id2title[496]="Little Big Man";
+id2title[497]="Little Caesar";
+id2title[498]="The Little Foxes";
+id2title[499]="The Little Fugitive";
+id2title[500]="The Little Kidnappers";
+id2title[501]="Little Vera";
+id2title[502]="Little Women";
+id2title[503]="Little Women";
+id2title[504]="The Lives of a Bengal Lancer";
+id2title[505]="Living in Oblivion";
+id2title[506]="Local Hero";
+id2title[507]="Lola";
+id2title[508]="Lola Montès";
+id2title[509]="Lolita";
+id2title[510]="Lone Star";
+id2title[511]="The Loneliness of the Long Distance Runner";
+id2title[512]="Long Day's Journey into Night";
+id2title[513]="The Long Goodbye";
+id2title[514]="The Long Good Friday";
+id2title[515]="The Long Voyage Home";
+id2title[516]="The Longest Day";
+id2title[517]="Look Back in Anger";
+id2title[518]="Lost Horizon";
+id2title[519]="Lost in America";
+id2title[520]="The Lost Weekend";
+id2title[521]="Love";
+id2title[522]="Love Affair";
+id2title[523]="Love and Death";
+id2title[524]="A Love in Germany";
+id2title[525]="Love in the Afternoon";
+id2title[526]="Lovely and Amazing";
+id2title[527]="Love on the Run";
+id2title[528]="Lover Come Back";
+id2title[529]="The Lovers";
+id2title[530]="Loves of a Blonde";
+id2title[531]="Loving";
+id2title[532]="Lust for Life";
+id2title[533]="M";
+id2title[534]="Mad Max";
+id2title[535]="The Madness of King George";
+id2title[536]="The Magic Flute";
+id2title[537]="The Major and the Minor";
+id2title[538]="Major Barbara";
+id2title[539]="Make Way for Tomorrow";
+id2title[540]="Malcolm X";
+id2title[541]="The Maltese Falcon";
+id2title[542]="A Man for All Seasons";
+id2title[543]="Man Hunt";
+id2title[544]="The Man Who Came to Dinner";
+id2title[545]="The Man Who Loved Women";
+id2title[546]="The Man Who Wasn't There";
+id2title[547]="The Man With the Golden Arm";
+id2title[548]="The Manchurian Candidate";
+id2title[549]="Manhattan";
+id2title[550]="Manon of the Spring";
+id2title[551]="Marriage Italian Style";
+id2title[552]="The Marriage of Maria Braun";
+id2title[553]="Married to the Mob";
+id2title[554]="The Marrying Kind";
+id2title[555]="Marty";
+id2title[556]="Mary Poppins";
+id2title[557]="M*A*S*H";
+id2title[558]="The Match Factory Girl";
+id2title[559]="Mayerling";
+id2title[560]="McCabe & Mrs. Miller";
+id2title[561]="Mean Streets";
+id2title[562]="Meet Me in St. Louis";
+id2title[563]="Melvin and Howard";
+id2title[564]="Memories of Underdevelopment";
+id2title[565]="The Memory of Justice";
+id2title[566]="The Men";
+id2title[567]="Ménage";
+id2title[568]="Metropolitan";
+id2title[569]="Midnight";
+id2title[570]="Midnight Cowboy";
+id2title[571]="Minnie and Moskowitz";
+id2title[572]="The Miracle of Morgan's Creek";
+id2title[573]="Miracle on 34th Street";
+id2title[574]="The Miracle Worker";
+id2title[575]="Les Miserables";
+id2title[576]="The Misfits";
+id2title[577]="Missing";
+id2title[578]="Mr. and Mrs. Bridge";
+id2title[579]="Mr. Deeds Goes to Town";
+id2title[580]="Mr. Hulot's Holiday";
+id2title[581]="Mister Roberts";
+id2title[582]="Mr. Smith Goes to Washington";
+id2title[583]="Mrs. Miniver";
+id2title[584]="Mon Oncle d'Amérique";
+id2title[585]="Mona Lisa";
+id2title[586]="Monsieur Verdoux";
+id2title[587]="Monsters, Inc.";
+id2title[588]="Moonlighting";
+id2title[589]="Moonstruck";
+id2title[590]="The More the Merrier";
+id2title[591]="Morgan!";
+id2title[592]="The Mortal Storm";
+id2title[593]="Mother";
+id2title[594]="Moulin Rouge";
+id2title[595]="The Mouthpiece";
+id2title[596]="Much Ado About Nothing";
+id2title[597]="Mulholland Dr.";
+id2title[598]="Murmur of the Heart";
+id2title[599]="Mutiny on the Bounty";
+id2title[600]="My Beautiful Laundrette";
+id2title[601]="My Darling Clementine";
+id2title[602]="My Dinner With Andre";
+id2title[603]="My Fair Lady";
+id2title[604]="My Left Foot";
+id2title[605]="My Life as a Dog";
+id2title[606]="My Man Godfrey";
+id2title[607]="My Night at Maud's";
+id2title[608]="My Own Private Idaho";
+id2title[609]="My 20th Century";
+id2title[610]="Mon Oncle";
+id2title[611]="The Naked Gun: From the Files of Police Squad!";
+id2title[612]="Nashville";
+id2title[613]="National Lampoon's Animal House";
+id2title[614]="National Velvet";
+id2title[615]="Network";
+id2title[616]="Never on Sunday";
+id2title[617]="Night Moves";
+id2title[618]="The Night of the Hunter";
+id2title[619]="Night of the Living Dead";
+id2title[620]="A Night to Remember";
+id2title[621]="A Nightmare on Elm Street";
+id2title[622]="1900";
+id2title[623]="Ninotchka";
+id2title[624]="Nobody's Fool";
+id2title[625]="Norma Rae";
+id2title[626]="North by Northwest";
+id2title[627]="Nothing But the Best";
+id2title[628]="Notorious";
+id2title[629]="Now, Voyager";
+id2title[630]="La Nuit De Varennes";
+id2title[631]="The Nun's Story";
+id2title[632]="Odd Man Out";
+id2title[633]="Of Mice and Men";
+id2title[634]="Oklahoma!";
+id2title[635]="Oliver Twist";
+id2title[636]="Los Olvidados";
+id2title[637]="On the Beach";
+id2title[638]="On the Town";
+id2title[639]="On the Waterfront";
+id2title[640]="One False Move";
+id2title[641]="One Flew Over the Cuckoo's Nest";
+id2title[642]="One Foot in Heaven";
+id2title[643]="One Hour with You";
+id2title[644]="One Night of Love";
+id2title[645]="One Potato, Two Potato";
+id2title[646]="One, Two, Three";
+id2title[647]="Only Angels Have Wings";
+id2title[648]="Open City";
+id2title[649]="Operation Crossbow";
+id2title[650]="The Opposite of Sex";
+id2title[651]="Ordinary People";
+id2title[652]="Ossessione";
+id2title[653]="Othello";
+id2title[654]="Our Town";
+id2title[655]="Out of the Past";
+id2title[656]="The Outlaw Josey Wales";
+id2title[657]="The Overlanders";
+id2title[658]="The Ox-Bow Incident";
+id2title[659]="Paint Your Wagon";
+id2title[660]="Paisan";
+id2title[661]="The Palm Beach Story";
+id2title[662]="The Parallax View";
+id2title[663]="A Passage to India";
+id2title[664]="The Passion of Anna";
+id2title[665]="Pather Panchali";
+id2title[666]="Paths of Glory";
+id2title[667]="Patton";
+id2title[668]="The Pawnbroker";
+id2title[669]="Payday";
+id2title[670]="Pelle the Conqueror";
+id2title[671]="The People Vs. Larry Flynt";
+id2title[672]="Persona";
+id2title[673]="Persuasion";
+id2title[674]="Le Petit Theatre de Jean Renoir";
+id2title[675]="Petulia";
+id2title[676]="The Philadelphia Story";
+id2title[677]="The Pianist";
+id2title[678]="The Piano";
+id2title[679]="Pickup on South Street";
+id2title[680]="The Pillow Book";
+id2title[681]="Pillow Talk";
+id2title[682]="The Pink Panther";
+id2title[683]="Pinocchio";
+id2title[684]="Pixote";
+id2title[685]="A Place in the Sun";
+id2title[686]="Places in the Heart";
+id2title[687]="Platoon";
+id2title[688]="Play Misty for Me";
+id2title[689]="The Player";
+id2title[690]="Playtime";
+id2title[691]="Point Blank";
+id2title[692]="Poltergeist";
+id2title[693]="Ponette";
+id2title[694]="Il Postino";
+id2title[695]="The Postman Always Rings Twice";
+id2title[696]="Pretty Baby";
+id2title[697]="Pride and Prejudice";
+id2title[698]="The Pride of the Yankees";
+id2title[699]="Prince of the City";
+id2title[700]="The Prisoner";
+id2title[701]="The Private Life of Henry VIII";
+id2title[702]="Prizzi's Honor";
+id2title[703]="The Producers";
+id2title[704]="Psycho";
+id2title[705]="The Public Enemy";
+id2title[706]="Pulp Fiction";
+id2title[707]="The Purple Rose of Cairo";
+id2title[708]="Pygmalion";
+id2title[709]="Quadrophenia";
+id2title[710]="The Quiet Man";
+id2title[711]="Raging Bull";
+id2title[712]="Raiders of the Lost Ark";
+id2title[713]="Rain Man";
+id2title[714]="Raise the Red Lantern";
+id2title[715]="Raising Arizona";
+id2title[716]="Ran";
+id2title[717]="The Rapture";
+id2title[718]="Rashomon";
+id2title[719]="Re-Animator";
+id2title[720]="Rear Window";
+id2title[721]="Rebecca";
+id2title[722]="Rebel Without a Cause";
+id2title[723]="Red";
+id2title[724]="The Red Badge of Courage";
+id2title[725]="Red River";
+id2title[726]="The Red Shoes";
+id2title[727]="Reds";
+id2title[728]="The Remains of the Day";
+id2title[729]="Repo Man";
+id2title[730]="Repulsion";
+id2title[731]="Reservoir Dogs";
+id2title[732]="The Return of Martin Guerre";
+id2title[733]="Reuben, Reuben";
+id2title[734]="Reversal of Fortune";
+id2title[735]="Richard III";
+id2title[736]="Ride the High Country";
+id2title[737]="Rififi";
+id2title[738]="The Right Stuff";
+id2title[739]="Risky Business";
+id2title[740]="River's Edge";
+id2title[741]="The Road Warrior";
+id2title[742]="Robocop";
+id2title[743]="Rocco and His Brothers";
+id2title[744]="Roger & Me";
+id2title[745]="Roman Holiday";
+id2title[746]="Romeo and Juliet";
+id2title[747]="Romeo and Juliet";
+id2title[748]="Room at the Top";
+id2title[749]="A Room With a View";
+id2title[750]="The Rose Tattoo";
+id2title[751]="Rosemary's Baby";
+id2title[752]="'Round Midnight";
+id2title[753]="Ruggles of Red Gap";
+id2title[754]="The Rules of the Game";
+id2title[755]="The Ruling Class";
+id2title[756]="Rushmore";
+id2title[757]="Ruthless People";
+id2title[758]="Sahara";
+id2title[759]="Salaam Bombay!";
+id2title[760]="Salesman";
+id2title[761]="Sanjuro";
+id2title[762]="Sansho the Bailiff";
+id2title[763]="Saturday Night and Sunday Morning";
+id2title[764]="Saturday Night Fever";
+id2title[765]="Saving Private Ryan";
+id2title[766]="Say Anything...";
+id2title[767]="Sayonara";
+id2title[768]="Scenes From a Marriage";
+id2title[769]="Schindler's List";
+id2title[770]="The Scoundrel";
+id2title[771]="The Search";
+id2title[772]="The Searchers";
+id2title[773]="Secret Honor";
+id2title[774]="Secrets and Lies";
+id2title[775]="Sense and Sensibility";
+id2title[776]="Sergeant York";
+id2title[777]="Serpico";
+id2title[778]="The Servant";
+id2title[779]="The Set-Up";
+id2title[780]="Seven Beauties";
+id2title[781]="Seven Brides for Seven Brothers";
+id2title[782]="Seven Days to Noon";
+id2title[783]="The Seven Samurai";
+id2title[784]="7 Up/28 Up";
+id2title[785]="The Seven Year Itch";
+id2title[786]="The Seventh Seal";
+id2title[787]="Sex, Lies and Videotape";
+id2title[788]="Sexy Beast";
+id2title[789]="Shadow of a Doubt";
+id2title[790]="Shaft";
+id2title[791]="Shakespeare in Love";
+id2title[792]="Shane";
+id2title[793]="She Wore a Yellow Ribbon";
+id2title[794]="Sherman's March";
+id2title[795]="She's Gotta Have It";
+id2title[796]="The Shining";
+id2title[797]="Ship of Fools";
+id2title[798]="Shoah";
+id2title[799]="Shock Corridor";
+id2title[800]="Shoeshine";
+id2title[801]="Shoot the Piano Player";
+id2title[802]="The Shooting Party";
+id2title[803]="The Shootist";
+id2title[804]="The Shop Around the Corner";
+id2title[805]="The Shop on Main Street";
+id2title[806]="A Shot in the Dark";
+id2title[807]="Shrek";
+id2title[808]="Sid and Nancy";
+id2title[809]="The Silence";
+id2title[810]="The Silence of the Lambs";
+id2title[811]="The Silent World";
+id2title[812]="Silk Stockings";
+id2title[813]="Silkwood";
+id2title[814]="Singin' in the Rain";
+id2title[815]="Sitting Pretty";
+id2title[816]="Sleeper";
+id2title[817]="A Slight Case of Murder";
+id2title[818]="Smash Palace";
+id2title[819]="Smile";
+id2title[820]="Smiles of a Summer Night";
+id2title[821]="The Snake Pit";
+id2title[822]="Snow White and the Seven Dwarfs";
+id2title[823]="Some Like It Hot";
+id2title[824]="The Sorrow and the Pity";
+id2title[825]="The Sound of Music";
+id2title[826]="South Pacific";
+id2title[827]="Spartacus";
+id2title[828]="Spellbound";
+id2title[829]="The Spiral Staircase";
+id2title[830]="Spirited Away";
+id2title[831]="Splendor in the Grass";
+id2title[832]="Stage Door";
+id2title[833]="Stagecoach";
+id2title[834]="Stairway to Heaven";
+id2title[835]="Stalag 17";
+id2title[836]="A Star Is Born";
+id2title[837]="Star Trek II: The Wrath of Khan";
+id2title[838]="Star Wars";
+id2title[839]="Starman";
+id2title[840]="The Stars Look Down";
+id2title[841]="State Fair";
+id2title[842]="Stevie";
+id2title[843]="Stolen Kisses";
+id2title[844]="Stop Making Sense";
+id2title[845]="Stormy Monday";
+id2title[846]="The Story of Adèle H.";
+id2title[847]="The Story of G.I. Joe";
+id2title[848]="The Story of Qiu Ju";
+id2title[849]="Story of Women";
+id2title[850]="Storytelling";
+id2title[851]="La Strada";
+id2title[852]="The Straight Story";
+id2title[853]="Straight Time";
+id2title[854]="Stranger Than Paradise";
+id2title[855]="Strangers on a Train";
+id2title[856]="Straw Dogs";
+id2title[857]="A Streetcar Named Desire";
+id2title[858]="Stroszek";
+id2title[859]="Suddenly, Last Summer";
+id2title[860]="The Sugarland Express";
+id2title[861]="Sullivan's Travels";
+id2title[862]="Summer";
+id2title[863]="Summertime";
+id2title[864]="Sunday Bloody Sunday";
+id2title[865]="Sundays and Cybele";
+id2title[866]="Sunset Boulevard";
+id2title[867]="Suspicion";
+id2title[868]="The Sweet Hereafter";
+id2title[869]="Sweet Smell of Success";
+id2title[870]="Sweet Sweetback's Baadasssss Song";
+id2title[871]="Swept Away";
+id2title[872]="Swing Time";
+id2title[873]="The Taking of Pelham One Two Three";
+id2title[874]="Talk to Her";
+id2title[875]="Tampopo";
+id2title[876]="Taste of Cherry";
+id2title[877]="A Taste of Honey";
+id2title[878]="Taxi Driver";
+id2title[879]="A Taxing Woman";
+id2title[880]="A Taxing Woman's Return";
+id2title[881]="Tell Them Willie Boy Is Here";
+id2title[882]="10";
+id2title[883]="The Ten Commandments";
+id2title[884]="Tender Mercies";
+id2title[885]="The Tender Trap";
+id2title[886]="Terms of Endearment";
+id2title[887]="La Terra trema";
+id2title[888]="Tess";
+id2title[889]="That Obscure Object of Desire";
+id2title[890]="That's Life!";
+id2title[891]="Thelma & Louise";
+id2title[892]="These Three";
+id2title[893]="They Live by Night";
+id2title[894]="They Shoot Horses, Don't They?";
+id2title[895]="They Were Expendable";
+id2title[896]="They Won't Forget";
+id2title[897]="The Thief of Bagdad";
+id2title[898]="The Thin Blue Line";
+id2title[899]="The Thin Man";
+id2title[900]="The Thin Red Line";
+id2title[901]="The Third Generation";
+id2title[902]="The Third Man";
+id2title[903]="The Thirty-Nine Steps";
+id2title[904]="Thirty Two Short Films About Glenn Gould";
+id2title[905]="This Is Spinal Tap";
+id2title[906]="The Man Must Die";
+id2title[907]="This Sporting Life";
+id2title[908]="Three Comrades";
+id2title[909]="Three Days of the Condor";
+id2title[910]="Throne of Blood";
+id2title[911]="Tight Little Island";
+id2title[912]="The Tin Drum";
+id2title[913]="To Be or Not to Be";
+id2title[914]="To Catch a Thief";
+id2title[915]="To Have and Have Not";
+id2title[916]="To Kill a Mockingbird";
+id2title[917]="To Live";
+id2title[918]="Tokyo Story";
+id2title[919]="Tom Jones";
+id2title[920]="Tootsie";
+id2title[921]="Top Hat";
+id2title[922]="Topaz";
+id2title[923]="Topkapi";
+id2title[924]="Total Recall";
+id2title[925]="Touch of Evil";
+id2title[926]="Toy Story";
+id2title[927]="Traffic";
+id2title[928]="The Train";
+id2title[929]="Trainspotting";
+id2title[930]="The Treasure of the Sierra Madre";
+id2title[931]="A Tree Grows in Brooklyn";
+id2title[932]="The Tree of the Wooden Clogs";
+id2title[933]="The Trip to Bountiful";
+id2title[934]="Tristana";
+id2title[935]="Trouble in Paradise";
+id2title[936]="The Trouble with Harry";
+id2title[937]="True Grit";
+id2title[938]="True Love";
+id2title[939]="Trust";
+id2title[940]="Tunes of Glory";
+id2title[941]="12 Angry Men";
+id2title[942]="Twelve O'Clock High";
+id2title[943]="Twentieth Century";
+id2title[944]="Two English Girls";
+id2title[945]="The Two of Us";
+id2title[946]="2001: A Space Odyssey";
+id2title[947]="Two Women";
+id2title[948]="Ugetsu";
+id2title[949]="Ulzana's Raid";
+id2title[950]="Umberto D.";
+id2title[951]="The Unbearable Lightness of Being";
+id2title[952]="Unforgiven";
+id2title[953]="The Usual Suspects";
+id2title[954]="Vanya on 42nd Street";
+id2title[955]="The Verdict";
+id2title[956]="Vertigo";
+id2title[957]="Videodrome";
+id2title[958]="Violette Nozière";
+id2title[959]="Viridiana";
+id2title[960]="Viva Zapata!";
+id2title[961]="The Voice of the Turtle";
+id2title[962]="The Wages of Fear";
+id2title[963]="Waking Life";
+id2title[964]="Walkabout";
+id2title[965]="A Walk in the Sun";
+id2title[966]="The War Game";
+id2title[967]="The War of the Roses";
+id2title[968]="The Warriors";
+id2title[969]="Watch on the Rhine";
+id2title[970]="The Waterdance";
+id2title[971]="The Way We Were";
+id2title[972]="Weekend";
+id2title[973]="Welcome to the Dollhouse";
+id2title[974]="The Well-Digger's Daughter";
+id2title[975]="West Side Story";
+id2title[976]="The Whales of August";
+id2title[977]="What Ever Happened to Baby Jane?";
+id2title[978]="What's Eating Gilbert Grape";
+id2title[979]="What's Up, Doc?";
+id2title[980]="When Harry Met Sally";
+id2title[981]="White Heat";
+id2title[982]="Who Framed Roger Rabbit";
+id2title[983]="Who's Afraid of Virginia Woolf?";
+id2title[984]="The Wild Bunch";
+id2title[985]="The Wild Child";
+id2title[986]="Wild Reeds";
+id2title[987]="Wild Strawberries";
+id2title[988]="Wilson";
+id2title[989]="Wings of Desire";
+id2title[990]="Wise Blood";
+id2title[991]="The Wizard of Oz";
+id2title[992]="Woman in the Dunes";
+id2title[993]="Woman of the Year";
+id2title[994]="The Women";
+id2title[995]="Women in Love";
+id2title[996]="Women on the Verge of a Nervous Breakdown";
+id2title[997]="Woodstock";
+id2title[998]="Working Girl";
+id2title[999]="The World of Apu";
+id2title[1000]="The World of Henry Orient";
+id2title[1001]="Written on the Wind";
+id2title[1002]="Wuthering Heights";
+id2title[1003]="Yankee Doodle Dandy";
+id2title[1004]="The Year of Living Dangerously";
+id2title[1005]="The Yearling";
+id2title[1006]="Yellow Submarine";
+id2title[1007]="Yi Yi: A One and a Two";
+id2title[1008]="Yojimbo";
+id2title[1009]="You Can Count On Me";
+id2title[1010]="You Only Live Once";
+id2title[1011]="Young Frankenstein";
+id2title[1012]="Young Mr. Lincoln";
+id2title[1013]="Y Tu Mamá También";
+id2title[1014]="Z";
+id2title[1015]="Zero for Conduct";
+
+supersearch_init(id2title);
+
+    </script>
+
+</head>
+<body onload="supersearch_display('','grid',6,7,'result',10)" >
+
+    Hit <a href="?">Refresh</a> to restart</a>
+
+<center>
+    <table width="50%" border="1">
+        <tr>
+            <td><a href="javascript:ss(0,0)" id="grid0_0">.</a></td>
+            <td><a href="javascript:ss(0,1)" id="grid0_1">.</a></td>
+            <td><a href="javascript:ss(0,2)" id="grid0_2">.</a></td>
+            <td><a href="javascript:ss(0,3)" id="grid0_3">.</a></td>
+            <td><a href="javascript:ss(0,4)" id="grid0_4">.</a></td>
+            <td><a href="javascript:ss(0,5)" id="grid0_5">.</a></td>
+            <td><a href="javascript:ss(0,6)" id="grid0_6">.</a></td>
+        </tr>
+        <tr>
+            <td><a href="javascript:ss(1,0)" id="grid1_0">.</a></td>
+            <td><a href="javascript:ss(1,1)" id="grid1_1">.</a></td>
+            <td><a href="javascript:ss(1,2)" id="grid1_2">.</a></td>
+            <td><a href="javascript:ss(1,3)" id="grid1_3">.</a></td>
+            <td><a href="javascript:ss(1,4)" id="grid1_4">.</a></td>
+            <td><a href="javascript:ss(1,5)" id="grid1_5">.</a></td>
+            <td><a href="javascript:ss(1,6)" id="grid1_6">.</a></td>
+        </tr>
+        <tr>
+            <td><a href="javascript:ss(2,0)" id="grid2_0">.</a></td>
+            <td><a href="javascript:ss(2,1)" id="grid2_1">.</a></td>
+            <td><a href="javascript:ss(2,2)" id="grid2_2">.</a></td>
+            <td><a href="javascript:ss(2,3)" id="grid2_3">.</a></td>
+            <td><a href="javascript:ss(2,4)" id="grid2_4">.</a></td>
+            <td><a href="javascript:ss(2,5)" id="grid2_5">.</a></td>
+            <td><a href="javascript:ss(2,6)" id="grid2_6">.</a></td>
+        </tr>
+        <tr>
+            <td><a href="javascript:ss(3,0)" id="grid3_0">.</a></td>
+            <td><a href="javascript:ss(3,1)" id="grid3_1">.</a></td>
+            <td><a href="javascript:ss(3,2)" id="grid3_2">.</a></td>
+            <td><a href="javascript:ss(3,3)" id="grid3_3">.</a></td>
+            <td><a href="javascript:ss(3,4)" id="grid3_4">.</a></td>
+            <td><a href="javascript:ss(3,5)" id="grid3_5">.</a></td>
+            <td><a href="javascript:ss(3,6)" id="grid3_6">.</a></td>
+        </tr>
+        <tr>
+            <td><a href="javascript:ss(4,0)" id="grid4_0">.</a></td>
+            <td><a href="javascript:ss(4,1)" id="grid4_1">.</a></td>
+            <td><a href="javascript:ss(4,2)" id="grid4_2">.</a></td>
+            <td><a href="javascript:ss(4,3)" id="grid4_3">.</a></td>
+            <td><a href="javascript:ss(4,4)" id="grid4_4">.</a></td>
+            <td><a href="javascript:ss(4,5)" id="grid4_5">.</a></td>
+            <td><a href="javascript:ss(4,6)" id="grid4_6">.</a></td>
+        </tr>
+        <tr>
+            <td><a href="javascript:ss(5,0)" id="grid5_0">.</a></td>
+            <td><a href="javascript:ss(5,1)" id="grid5_1">.</a></td>
+            <td><a href="javascript:ss(5,2)" id="grid5_2">.</a></td>
+            <td><a href="javascript:ss(5,3)" id="grid5_3">.</a></td>
+            <td><a href="javascript:ss(5,4)" id="grid5_4">.</a></td>
+            <td><a href="javascript:ss(5,5)" id="grid5_5">.</a></td>
+            <td><a href="javascript:ss(5,6)" id="grid5_6">.</a></td>
+        </tr>
+    </table>
+
+    <hr>
+
+    <table width="50%">
+        <tr><td id="result0">.</td></tr>
+        <tr><td id="result1">.</td></tr>
+        <tr><td id="result2">.</td></tr>
+        <tr><td id="result3">.</td></tr>
+        <tr><td id="result4">.</td></tr>
+        <tr><td id="result5">.</td></tr>
+        <tr><td id="result6">.</td></tr>
+        <tr><td id="result7">.</td></tr>
+        <tr><td id="result8">.</td></tr>
+        <tr><td id="result9">.</td></tr>
+    </table>
+
+    <a href="http://www.nytimes.com/ref/movies/1000best.html" target="_blank">Titles taken from here</a>
+</center>
+</body>
+</html>
