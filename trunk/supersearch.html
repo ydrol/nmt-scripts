@@ -77,6 +77,7 @@ var ss_result_rows;
 var ss_grid_prefix;
 var ss_results_prefix;
 var ss_expand_all=0;
+var ss_match_count;
 
 // Map a grid element o
 var ss_grid_matches;
@@ -88,7 +89,8 @@ function supersearch_display(
         grid_cols,     // # cols in grid
         results_prefix, // Prefix for HTML result elements.
         result_rows,   // Number of result rows
-        expand_all     // If true then show as many words as possible in the grid
+        expand_all,     // If true then show as many words as possible in the grid
+        match_count_id // Display number of matches here
         ) {
 
     // Set dimensions of grid and results
@@ -99,6 +101,7 @@ function supersearch_display(
     ss_grid_prefix = grid_prefix;
     ss_results_prefix = results_prefix;
     ss_expand_all = expand_all;
+    ss_match_count = match_count_id;
 
     show_string(searchstring);
 
@@ -130,7 +133,7 @@ function supersearch_display(
     // Put the matches into the grid
     ss_display_matches(matches,grid_rows,grid_cols,searchstring);
 
-    ss_display_results(results);
+    ss_display_results(results,match_count_id);
 }
 
 function ss_hash_len(matches) {
@@ -163,7 +166,7 @@ function ss_expand_matches(matches,rows,cols) {
     }
 }
 
-function ss_display_results(results) {
+function ss_display_results(results,match_count_id) {
     
     var sorted_titles = new Array();
     var j = 0;
@@ -184,6 +187,7 @@ function ss_display_results(results) {
     if (j > ss_result_rows) {
         show_result(ss_result_rows-1,"** More results - add pagination **");
     }
+    show_match_count(match_count_id,sorted_titles.length);
 }
 
 function ss_display_matches(matches,rows,cols,searchstring) {
@@ -228,6 +232,10 @@ function ss_display_matches(matches,rows,cols,searchstring) {
     }
 }
 
+function show_match_count(id,count) {
+    document.getElementById(id).firstChild.nodeValue = count;
+}
+
 function show_result(i,value) {
     document.getElementById(ss_results_prefix+i).firstChild.nodeValue = value;
 }
@@ -243,23 +251,21 @@ function ss(r,c) {
     var match = document.getElementById(ss_grid_prefix+r+"_"+c).firstChild.nodeValue;
     // Add the search to the stack
     ss_search_stack[++ss_search_stack_pos] = match;
-    if (ss_search_stack_pos > ss_search_stack_max) {
-        ss_search_stack_max = ss_search_stack_pos;
-    }
+    ss_search_stack_max = ss_search_stack_pos;
 
-    supersearch_display(match,ss_grid_prefix,ss_grid_rows,ss_grid_cols,ss_results_prefix,ss_result_rows,ss_expand_all);
+    supersearch_display(match,ss_grid_prefix,ss_grid_rows,ss_grid_cols,ss_results_prefix,ss_result_rows,ss_expand_all,ss_match_count);
 }
 
 function ss_back() {
     if (ss_search_stack_pos > 0 ) {
         var match = ss_search_stack[--ss_search_stack_pos];
-        supersearch_display(match,ss_grid_prefix,ss_grid_rows,ss_grid_cols,ss_results_prefix,ss_result_rows,ss_expand_all);
+        supersearch_display(match,ss_grid_prefix,ss_grid_rows,ss_grid_cols,ss_results_prefix,ss_result_rows,ss_expand_all,ss_match_count);
     }
 }
 function ss_forward() {
     if (ss_search_stack_pos < ss_search_stack_max ) {
         var match = ss_search_stack[++ss_search_stack_pos];
-        supersearch_display(match,ss_grid_prefix,ss_grid_rows,ss_grid_cols,ss_results_prefix,ss_result_rows,ss_expand_all);
+        supersearch_display(match,ss_grid_prefix,ss_grid_rows,ss_grid_cols,ss_results_prefix,ss_result_rows,ss_expand_all,ss_match_count);
     }
 }
 
@@ -1333,9 +1339,12 @@ id2title[1015]="Zero for Conduct";
 supersearch_init(id2title);
 
     </script>
+    <style>
+        #matchcount { color:red; }
+    </style>
 
 </head>
-<body onload="supersearch_display('','grid',6,7,'result',15,0)" >
+<body onload="supersearch_display('','grid',6,7,'result',15,0,'matchcount')" >
 
     <h1>NMT Supersearch</h1>
     
@@ -1419,7 +1428,7 @@ supersearch_init(id2title);
         </td>
         <td>
 
-            <p>Matches
+            <p><span id="matchcount">0</span> matches.
 
 
             <table width="50%">
