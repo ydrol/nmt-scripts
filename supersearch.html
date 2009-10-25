@@ -24,7 +24,7 @@ var ssWord2Id = new Array();  // map a word to ss id
 
 var ss_search_stack_pos=0;
 var ss_search_stack_max=0;
-var ss_search_stack = new Array(""); // Stack of search strings 
+var ss_search_stack = new Array("*"); // Stack of search strings - start with initial search
 
 function supersearch_init(id2title) {
 
@@ -78,6 +78,7 @@ var ss_grid_prefix;
 var ss_results_prefix;
 var ss_expand_all=0;
 var ss_match_count;
+var ss_partial_word_char='*';
 
 // Map a grid element o
 var ss_grid_matches;
@@ -109,19 +110,34 @@ function supersearch_display(
 
     var results = new Array();
 
+    var partial_word = 0;
+
+    var partial_word_flag_pos;
+    partial_word_flag_pos = searchstring.indexOf(ss_partial_word_char);
+    if (partial_word_flag_pos >= 0 ) {
+        partial_word = 1;
+        searchstring = searchstring.substring(0,partial_word_flag_pos);
+    }
+
     var lenstr = searchstring.length;
 
     // Add all of the words that match the search string - index by search string + next letter.
     for (var w in ssWord2Id ) {
-        if (w.substr(0,lenstr) == searchstring ) {
-            addHash(matches,w.substr(0,lenstr+1),w);
-            
-            //also store ids of all titles that have word w
-            for(var idx in ssWord2Id[w]) {
-                var i = ssWord2Id[w][idx];
-                results[i] = 1;
-            }
+       var matched = 0;
+       if (partial_word) {
+           matched = (w.substr(0,lenstr) == searchstring );
+       } else {
+           matched = ( w == searchstring) ;
+       }
+       if (matched)  {
+        addHash(matches,w.substr(0,lenstr+1),w);
+        
+        //also store ids of all titles that have word w
+        for(var idx in ssWord2Id[w]) {
+            var i = ssWord2Id[w][idx];
+            results[i] = 1;
         }
+    }
     }
 
     // If there is room in the grid - expand some of the drill down options
@@ -179,9 +195,10 @@ function ss_display_results(results,match_count_id) {
     // Clear the rest of the values
     for( i = 0  ; i < ss_result_rows ; i++ ) {
         if (sorted_titles[i] ) {
-            show_result(i,sorted_titles[i]);
+            show_result(i,ss_orig_title(sorted_titles[i]));
+
         } else {
-            show_result(i,"----------");
+            show_result(i,"");
         }
     }
     if (j > ss_result_rows) {
@@ -190,6 +207,11 @@ function ss_display_results(results,match_count_id) {
     show_match_count(match_count_id,sorted_titles.length);
 }
 
+function ss_orig_title(title) {
+    var ref;
+    var refArray=ssTitleToRef[title];
+    return id2title[refArray[0]];
+}
 function ss_display_matches(matches,rows,cols,searchstring) {
 
     var updated = new Array();
@@ -213,6 +235,9 @@ function ss_display_matches(matches,rows,cols,searchstring) {
             //Swap the commented lines to see the matches
             //var show = longest_substring(m,searchstring)+":"+searchstring+":"+m;
             var show = longest_substring(m,searchstring);
+            if (m.length > 1 ) {
+                show = show + '' + ss_partial_word_char;
+            }
             show_grid(r,c,show);
             updated[c+r*cols] = 1;
             c++;
@@ -226,7 +251,7 @@ function ss_display_matches(matches,rows,cols,searchstring) {
     for(var r = 0 ; r < ss_grid_rows ; r++ ) {
         for(var c = 0 ; c < ss_grid_cols ; c++ ) {
             if (!updated[c+r*cols]) {
-                show_grid(r,c,"-");
+                show_grid(r,c,"");
             }
         }
     }
@@ -1341,10 +1366,13 @@ supersearch_init(id2title);
     </script>
     <style>
         #matchcount { color:red; }
+        table.grid { width:90%; }
+        td.grid { width:14.2%; }
+        .grid { border:0 ; margin:0 ; padding:0 ; }
     </style>
 
 </head>
-<body onload="supersearch_display('','grid',6,7,'result',15,0,'matchcount')" >
+<body onload="supersearch_display('*','grid',6,7,'result',15,0,'matchcount')" >
 
     <h1>NMT Supersearch</h1>
     
@@ -1357,71 +1385,71 @@ supersearch_init(id2title);
 
 <table width="100%">
     <tr valign="top">
-        <td width=30%>
+        <td width=40%>
 
-            <p>Search string 
             <table>
                 <tr>
+                    <td>Search string </td>
                     <td><a href="javascript:ss_back()">&lt;&lt;</a></td>
                     <td>[<font id="ss_string">.</font>]</td>
                     <td><a href="javascript:ss_forward()">&gt;&gt;</a></td>
                 </tr>
             </table>
     
-            <table width="50%" border="1">
+            <table class="grid" width="90%" border="1">
                 <tr>
-                    <td><a href="javascript:ss(0,0)" id="grid0_0">.</a></td>
-                    <td><a href="javascript:ss(0,1)" id="grid0_1">.</a></td>
-                    <td><a href="javascript:ss(0,2)" id="grid0_2">.</a></td>
-                        <td><a href="javascript:ss(0,3)" id="grid0_3">.</a></td>
-                    <td><a href="javascript:ss(0,4)" id="grid0_4">.</a></td>
-                    <td><a href="javascript:ss(0,5)" id="grid0_5">.</a></td>
-                    <td><a href="javascript:ss(0,6)" id="grid0_6">.</a></td>
+                    <td class="grid"><a href="javascript:ss(0,0)" id="grid0_0">.</a></td>
+                    <td class="grid"><a href="javascript:ss(0,1)" id="grid0_1">.</a></td>
+                    <td class="grid"><a href="javascript:ss(0,2)" id="grid0_2">.</a></td>
+                        <td class="grid"><a href="javascript:ss(0,3)" id="grid0_3">.</a></td>
+                    <td class="grid"><a href="javascript:ss(0,4)" id="grid0_4">.</a></td>
+                    <td class="grid"><a href="javascript:ss(0,5)" id="grid0_5">.</a></td>
+                    <td class="grid"><a href="javascript:ss(0,6)" id="grid0_6">.</a></td>
                 </tr>
                     <tr>
-                    <td><a href="javascript:ss(1,0)" id="grid1_0">.</a></td>
-                    <td><a href="javascript:ss(1,1)" id="grid1_1">.</a></td>
-                    <td><a href="javascript:ss(1,2)" id="grid1_2">.</a></td>
-                    <td><a href="javascript:ss(1,3)" id="grid1_3">.</a></td>
-                    <td><a href="javascript:ss(1,4)" id="grid1_4">.</a></td>
-                    <td><a href="javascript:ss(1,5)" id="grid1_5">.</a></td>
-                    <td><a href="javascript:ss(1,6)" id="grid1_6">.</a></td>
+                    <td class="grid"><a href="javascript:ss(1,0)" id="grid1_0">.</a></td>
+                    <td class="grid"><a href="javascript:ss(1,1)" id="grid1_1">.</a></td>
+                    <td class="grid"><a href="javascript:ss(1,2)" id="grid1_2">.</a></td>
+                    <td class="grid"><a href="javascript:ss(1,3)" id="grid1_3">.</a></td>
+                    <td class="grid"><a href="javascript:ss(1,4)" id="grid1_4">.</a></td>
+                    <td class="grid"><a href="javascript:ss(1,5)" id="grid1_5">.</a></td>
+                    <td class="grid"><a href="javascript:ss(1,6)" id="grid1_6">.</a></td>
                 </tr>
                 <tr>
-                    <td><a href="javascript:ss(2,0)" id="grid2_0">.</a></td>
-                    <td><a href="javascript:ss(2,1)" id="grid2_1">.</a></td>
-                    <td><a href="javascript:ss(2,2)" id="grid2_2">.</a></td>
-                    <td><a href="javascript:ss(2,3)" id="grid2_3">.</a></td>
-                    <td><a href="javascript:ss(2,4)" id="grid2_4">.</a></td>
-                    <td><a href="javascript:ss(2,5)" id="grid2_5">.</a></td>
-                    <td><a href="javascript:ss(2,6)" id="grid2_6">.</a></td>
+                    <td class="grid"><a href="javascript:ss(2,0)" id="grid2_0">.</a></td>
+                    <td class="grid"><a href="javascript:ss(2,1)" id="grid2_1">.</a></td>
+                    <td class="grid"><a href="javascript:ss(2,2)" id="grid2_2">.</a></td>
+                    <td class="grid"><a href="javascript:ss(2,3)" id="grid2_3">.</a></td>
+                    <td class="grid"><a href="javascript:ss(2,4)" id="grid2_4">.</a></td>
+                    <td class="grid"><a href="javascript:ss(2,5)" id="grid2_5">.</a></td>
+                    <td class="grid"><a href="javascript:ss(2,6)" id="grid2_6">.</a></td>
                 </tr>
                 <tr>
-                    <td><a href="javascript:ss(3,0)" id="grid3_0">.</a></td>
-                    <td><a href="javascript:ss(3,1)" id="grid3_1">.</a></td>
-                    <td><a href="javascript:ss(3,2)" id="grid3_2">.</a></td>
-                    <td><a href="javascript:ss(3,3)" id="grid3_3">.</a></td>
-                    <td><a href="javascript:ss(3,4)" id="grid3_4">.</a></td>
-                    <td><a href="javascript:ss(3,5)" id="grid3_5">.</a></td>
-                    <td><a href="javascript:ss(3,6)" id="grid3_6">.</a></td>
+                    <td class="grid"><a href="javascript:ss(3,0)" id="grid3_0">.</a></td>
+                    <td class="grid"><a href="javascript:ss(3,1)" id="grid3_1">.</a></td>
+                    <td class="grid"><a href="javascript:ss(3,2)" id="grid3_2">.</a></td>
+                    <td class="grid"><a href="javascript:ss(3,3)" id="grid3_3">.</a></td>
+                    <td class="grid"><a href="javascript:ss(3,4)" id="grid3_4">.</a></td>
+                    <td class="grid"><a href="javascript:ss(3,5)" id="grid3_5">.</a></td>
+                    <td class="grid"><a href="javascript:ss(3,6)" id="grid3_6">.</a></td>
                 </tr>
                 <tr>
-                    <td><a href="javascript:ss(4,0)" id="grid4_0">.</a></td>
-                    <td><a href="javascript:ss(4,1)" id="grid4_1">.</a></td>
-                    <td><a href="javascript:ss(4,2)" id="grid4_2">.</a></td>
-                    <td><a href="javascript:ss(4,3)" id="grid4_3">.</a></td>
-                    <td><a href="javascript:ss(4,4)" id="grid4_4">.</a></td>
-                    <td><a href="javascript:ss(4,5)" id="grid4_5">.</a></td>
-                    <td><a href="javascript:ss(4,6)" id="grid4_6">.</a></td>
+                    <td class="grid"><a href="javascript:ss(4,0)" id="grid4_0">.</a></td>
+                    <td class="grid"><a href="javascript:ss(4,1)" id="grid4_1">.</a></td>
+                    <td class="grid"><a href="javascript:ss(4,2)" id="grid4_2">.</a></td>
+                    <td class="grid"><a href="javascript:ss(4,3)" id="grid4_3">.</a></td>
+                    <td class="grid"><a href="javascript:ss(4,4)" id="grid4_4">.</a></td>
+                    <td class="grid"><a href="javascript:ss(4,5)" id="grid4_5">.</a></td>
+                    <td class="grid"><a href="javascript:ss(4,6)" id="grid4_6">.</a></td>
                 </tr>
                 <tr>
-                    <td><a href="javascript:ss(5,0)" id="grid5_0">.</a></td>
-                    <td><a href="javascript:ss(5,1)" id="grid5_1">.</a></td>
-                    <td><a href="javascript:ss(5,2)" id="grid5_2">.</a></td>
-                    <td><a href="javascript:ss(5,3)" id="grid5_3">.</a></td>
-                    <td><a href="javascript:ss(5,4)" id="grid5_4">.</a></td>
-                    <td><a href="javascript:ss(5,5)" id="grid5_5">.</a></td>
-                    <td><a href="javascript:ss(5,6)" id="grid5_6">.</a></td>
+                    <td class="grid"><a href="javascript:ss(5,0)" id="grid5_0">.</a></td>
+                    <td class="grid"><a href="javascript:ss(5,1)" id="grid5_1">.</a></td>
+                    <td class="grid"><a href="javascript:ss(5,2)" id="grid5_2">.</a></td>
+                    <td class="grid"><a href="javascript:ss(5,3)" id="grid5_3">.</a></td>
+                    <td class="grid"><a href="javascript:ss(5,4)" id="grid5_4">.</a></td>
+                    <td class="grid"><a href="javascript:ss(5,5)" id="grid5_5">.</a></td>
+                    <td class="grid"><a href="javascript:ss(5,6)" id="grid5_6">.</a></td>
                 </tr>
             </table>
 
