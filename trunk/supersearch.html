@@ -155,7 +155,7 @@ function supersearch_display(
 function ss_hash_len(matches) {
     var i;
     i=0;
-    for(var j in matches) if (matches[j] && matches.length > 0) i++;
+    for(var j in matches) if (matches[j] && matches[j].length > 0) i++;
     return i;
 }
 function ss_expand_matches(matches,rows,cols) {
@@ -214,6 +214,7 @@ function ss_orig_title(title) {
 }
 function ss_display_matches(matches,rows,cols,searchstring) {
 
+    var num_matches = ss_hash_len(matches);
     var updated = new Array();
 
     var sorted_words = new Array();
@@ -226,7 +227,15 @@ function ss_display_matches(matches,rows,cols,searchstring) {
     // update new values 
     var r = 0;
     var c = 0;
-    if (ss_hash_len(matches) > rows * cols ) alert ("result overflow!");
+
+    // Adjust rows and columns to keep a square share.
+    if (num_matches > rows * cols ) alert ("result overflow!");
+
+    cols = parseInt(sqrt(num_matches)+0.99);
+    rows = parseInt(num_matches / cols + 0.99)  ;
+
+
+
     for( var w in sorted_words ) {
         var m = matches[sorted_words[w]];
 
@@ -247,13 +256,37 @@ function ss_display_matches(matches,rows,cols,searchstring) {
             }
         }
     }
-    // Clear the rest of the grid 
-    for(var r = 0 ; r < ss_grid_rows ; r++ ) {
+    // Clear the grid - for performance we clear unused at the end - NMT is very slow!
+
+    // First clear the final partial row
+    if (r < ss_grid_rows) {
+        for(var cc = c ; cc < cols ; cc++ ) show_grid(r,cc,"");
+    }
+    // Clear bottom 
+    for(var r = rows ; r < ss_grid_rows ; r++ ) {
         for(var c = 0 ; c < ss_grid_cols ; c++ ) {
-            if (!updated[c+r*cols]) {
-                show_grid(r,c,"");
-            }
+            show_grid(r,c,"");
         }
+    }
+    // Clear RHS
+    for(var r = 0 ; r < rows ; r++ ) {
+        for(var c = cols ; c < ss_grid_cols ; c++ ) {
+            show_grid(r,c,"");
+        }
+    }
+}
+
+// no math library on NMT
+function sqrt(x) {
+    if (x == 0) return 0;
+    var s1 = x/2;
+
+    while(true) {
+        var s2 = x / s1;
+        if ((s2-s1)*(s2-s1) < 0.01 ) {
+            return s1;
+        }
+        s1 = (s2 + s1 ) / 2;
     }
 }
 
@@ -2376,10 +2409,13 @@ supersearch_init(id2title);
 
     <h1>NMT Supersearch</h1>
     
-    <p>A demo of predictive searching of a ~2000 title film catalog. Coming soon to oversight.
+    <p>A demo of predictive searching of a ~2000 title film catalog. Coming soon to oversight. The grid options are displayed in a square to minimise remote key presses. The overall number of keypresses turns out to be very close to that required for normal 'text' entry via the remote but:
+    <ul>
+        <li>only the arrow keys are required so you dont need to look at the remote.</li>
+        <li>no need to pause if two consecutive letters are on the same key.</li>
+    </ul>
+    
     <p>NMT Skin makers feel free to add the necessary Gaya'isms :)
-
-    Hit <a href="?">Refresh</a>
 
     <hr>
 
