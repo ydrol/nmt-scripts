@@ -1,23 +1,31 @@
 Hi,
 
+==Mission 70==
 Regarding my refund request, opening the speaker revealed why it was damaged.
 The drive units had been replaced with inferior ones. In effect it was no longer a "Mission" speaker.
 
 
 I've added some pictures so you can see.
 
-Here is the original unit in good working order:
+==Here is the original unit in good working order:==
 
 [http://nmt-scripts.googlecode.com/svn/trunk/mission/p1030028.jpg]
 
 
-Here is the unit that fell apart:
+==Here is the unit that fell apart:==
 
-Note the drives are completely different, and the shiny blue capacitor is missing.
+*No Foam*
+
+*the drives are completely different*
+*and the shiny blue capacitor is missing.*
+
 [http://nmt-scripts.googlecode.com/svn/trunk/mission/p1030029.jpg]
 
-Here the bass drive is clearly a cheap one, and its also damaged.
-The tweeter unit, has actually broken in half. This is the rear of the tweeter.
+*the bass drive is clearly a cheap one, and its also damaged.*
+
+*The tweeter unit, has actually broken in half. *
+
+This is the rear of the tweeter.
 [http://nmt-scripts.googlecode.com/svn/trunk/mission/p1030030.jpg]
 
 And still inside the box, is the front of the tweeter including electrical mountings
