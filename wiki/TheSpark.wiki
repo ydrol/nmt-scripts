@@ -1,0 +1,17 @@
+Help - having a moment - cant find weight goals to change goal line
+
+= this is my start page =
+
+== is it here ==
+
+http://nmt-scripts.googlecode.com/svn/trunk/spark/spark1.jpg
+
+
+== or here ==
+
+http://nmt-scripts.googlecode.com/svn/trunk/spark/spark2.jpg
+
+
+== or here ==
+
+http://nmt-scripts.googlecode.com/svn/trunk/spark/spark3.jpg
