@@ -1,5 +1,2 @@
 http://nmt-scripts.googlecode.com/svn/trunk/junk/bmw/third/P1030085.JPG
-http://nmt-scripts.googlecode.com/svn/trunk/junk/bmw/third/P1030087.JPG
-http://nmt-scripts.googlecode.com/svn/trunk/junk/bmw/third/P1030088.JPG
-http://nmt-scripts.googlecode.com/svn/trunk/junk/bmw/third/P1030089.JPG
-http://nmt-scripts.googlecode.com/svn/trunk/junk/bmw/third/P1030090.JPG
+http://nmt-scripts.googlecode.com/svn/trunk/junk/bmw/orig/P1030085.JPG
