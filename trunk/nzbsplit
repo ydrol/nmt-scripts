@@ -1,0 +1,31 @@
+# split nzb file
+
+splitnzb() {
+    nzb="$1" ; shift
+    b="$1" ; shift
+
+    for t in 0 1 2 ; do
+
+        for u in 0 1 2 3 4 5 6 7 8 9 ; do
+            if [ "$t$u" != 00 ] ; then
+                if grep -q "<file.*[eE]$t$u" "$nzb" ; then
+                    echo "$t$u..."
+                    sed -rn "
+                        /xml/,/<nzb/ p;
+                        /<file.*[eE]$t$u/,/<.file/ p ;
+                         /<.nzb/ p"  "$nzb" > "${b}e$t$u.nzb"
+                else
+                    echo "$t$u not found"
+                    return
+                fi
+            fi
+        done
+    done
+}
+
+if [ -z "$1" ] ; then
+    echo "usage $0 nzbfile newname "
+    exit 1
+else
+    splitnzb "$@"
+fi
