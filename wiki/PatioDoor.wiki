@@ -1,8 +1,7 @@
-
 http://nmt-scripts.googlecode.com/svn/trunk/door/front.gif
 
-http://nmt-scripts.googlecode.com/svn/trunk/door/front-size.gif
+http://nmt-scripts.googlecode.com/svn/trunk/door/front_size.gif
 
 http://nmt-scripts.googlecode.com/svn/trunk/door/back.gif
 
-http://nmt-scripts.googlecode.com/svn/trunk/door/back-size.gif
+http://nmt-scripts.googlecode.com/svn/trunk/door/back_size.gif
