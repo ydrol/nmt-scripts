@@ -20,7 +20,7 @@ BEGIN {
     ks="if then else while do return match substr index sub gsub in getline ";
     ks=ks" RSTART RLENGTH print systime open close FS NF exit break for system ";
     ks=ks" delete return split tolower toupper length continue sprintf int";
-    ks=ks" rand printf and rshift strftime";
+    ks=ks" rand printf and lshift rshift strftime";
     gsub(/ +/," ",ks);
     gsub(/^ +/,"",ks);
     gsub(/ +$/,"",ks);

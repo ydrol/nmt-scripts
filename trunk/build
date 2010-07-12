@@ -41,10 +41,7 @@ appname=$1 ; shift
 version_id=$1 ; shift
 
 case "$version_id" in
-	20[01][0-9][01][0-9][0-3][0-9]-[0-9]*)
-		echo Version $version_id
-		;;
-    r[0-9][0-9]*)
+    *r[0-9][0-9]*)
 		echo Version $version_id
 		;;
 	*)
