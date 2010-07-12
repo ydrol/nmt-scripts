@@ -1,6 +1,10 @@
+*FRONT (same side as handle)*
+
 http://nmt-scripts.googlecode.com/svn/trunk/door/front.gif
 
 http://nmt-scripts.googlecode.com/svn/trunk/door/front_size.gif
+
+*BACK*
 
 http://nmt-scripts.googlecode.com/svn/trunk/door/back.gif
 
