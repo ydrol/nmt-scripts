@@ -28,6 +28,7 @@ BEGIN {
     for (i in k) {
         kwd[k[i]]=1;
     }
+    inawk=1;
 }
 
 END {
@@ -118,10 +119,10 @@ function parse(t,names,tmp) {
 
 
 function analyse(f,\
- msg) {
+ msg,prefix) {
 
     err=0;
-    msg = "\nFunction "f"  line:"lineno[f];
+    prefix = FILENAME":"lineno[f]" "f"()";
     parse(params[f],par);
     parse(local[f],loc);
     parse(body[f],bdy);
@@ -130,13 +131,13 @@ function analyse(f,\
     #msg = msg "\n\tlocal:\t"local[f];
     for(i in par) {
         if (!(i in bdy)) {
-            msg = msg "\n\n\t\tUnused parameter "i;
+            msg = msg "\n"prefix"\tUnused parameter "i;
             err=1;
         }
     }
     for(i in loc) {
         if (!(i in bdy)) {
-            msg = msg "\n\n\t\tUnused local "i;
+            msg = msg "\n"prefix"\tUnused local "i;
             err=2;
         }
     }
@@ -144,14 +145,13 @@ function analyse(f,\
         #params keys on all functions names
         if (!(i in kwd) && !(i in params) && !(i in par) && !(i in loc)) {
             if (i !~ "^g[_A-Z]" && i !~ "^[_A-Z0-9]" ) {
-                msg = msg "\n\n\t\tglobal?\t"i;
+                msg = msg "\n"prefix"\tglobal?\t"i;
                 err=3;
             }
         }
     }
     if (err)    {
         print msg;
-        print "\nError "err"---------\n\n";
     }
 }
 
