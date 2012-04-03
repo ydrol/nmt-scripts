@@ -1,3 +1,0 @@
-A collection of scripts for NMT platform
-
-Also the wiki is where the packages will be kep for download until Google fix thier mime types.
